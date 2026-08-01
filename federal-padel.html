@@ -256,10 +256,12 @@
     .gender-btn.active-all { background: var(--text); color: var(--bg); border-color: var(--text); }
   </style>
 <base target="_blank">
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <base target="_blank">
 </head>
 <body>
-  <body>
   <div class="container">
     <!-- PANTALLA DE LOGIN -->
     <div id="login-screen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,var(--bg),var(--bg-dark));z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;">
@@ -453,14 +455,100 @@
       </div>
     </div>
 
-    <!-- CONFIGURACIÓN -->
-    <div id="tab-config" class="section">
+    <!-- TORNEO (MULTI-DISPOSITIVO) -->
+    <div id="tab-room" class="section">
       <div class="card">
+        <div class="card-title">🏟️ Torneo Multi-Dispositivo</div>
+        <p class="card-subtitle">Conectá todos los teléfonos al mismo torneo para cargar resultados en tiempo real entre varias canchas.</p>
+
+        <div id="room-status"></div>
+
+        <div style="margin-top:16px;">
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;">Crear nuevo torneo</div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="createRoom()">➕ Crear Torneo</button>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:2px solid var(--border);">
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;">Unirse a un torneo existente</div>
+          <input class="input" id="room-code-input" placeholder="Ej: ABC123" style="text-transform:uppercase;" maxlength="6" />
+          <div class="actions">
+            <button class="btn btn-success" onclick="joinRoom(document.getElementById('room-code-input').value)">🔗 Unirse</button>
+            <button class="btn btn-danger btn-sm" onclick="leaveRoom()">✕ Salir</button>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding:14px;background:var(--bg-dark);border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);line-height:1.8;">
+          <strong style="color:var(--text);">📖 Cómo funciona:</strong><br>
+          1. Una persona crea el torneo y obtiene un código<br>
+          2. Los demás organizadores se unen con ese código<br>
+          3. Todos ven los mismos equipos, zonas y resultados en tiempo real<br>
+          4. Cualquiera puede cargar resultados desde su teléfono<br>
+          5. Los datos se guardan automáticamente en todos los dispositivos
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN (CONTROL DE ACCESO) -->
+    <div id="tab-admin" class="section">
+      <div class="card">
+        <div class="card-title">🔐 Panel de Administrador</div>
+        <p class="card-subtitle">Solo visible para el administrador. Acá podés controlar quién accede a la app.</p>
+
+        <div id="admin-only-content">
+          <div style="margin-bottom:20px;padding:14px;background:var(--success-light);border-radius:var(--radius-sm);border-left:4px solid var(--success);">
+            <div style="font-size:13px;font-weight:700;color:var(--success);">✅ Estás logueado como ADMINISTRADOR</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Tenés acceso completo a todas las funciones.</div>
+          </div>
+
+          <div style="margin-bottom:20px;padding:16px;border:2px solid var(--border);border-radius:var(--radius);background:var(--bg-card);">
+            <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;">🔑 Clave de Administrador</div>
+            <label class="small" style="font-weight:700;margin-bottom:6px;display:block;">Nueva clave (dejá vacío para no cambiar)</label>
+            <input type="password" class="input" id="admin-pass-input" placeholder="Nueva clave de admin" />
+            <div class="actions" style="margin-top:10px;">
+              <button class="btn btn-primary" onclick="changeAdminPass()">💾 Guardar Clave Admin</button>
+            </div>
+            <div id="admin-pass-msg" style="margin-top:8px;font-size:12px;font-weight:600;"></div>
+          </div>
+
+          <div style="margin-bottom:20px;padding:16px;border:2px solid var(--border);border-radius:var(--radius);background:var(--bg-card);">
+            <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;">🎫 Clave de Invitado</div>
+            <label class="small" style="font-weight:700;margin-bottom:6px;display:block;">Clave actual: <span id="current-guest-pass" style="color:var(--accent);">Sin configurar</span></label>
+            <input type="password" class="input" id="guest-pass-input" placeholder="Nueva clave de invitado" />
+            <div class="actions" style="margin-top:10px;">
+              <button class="btn btn-success" onclick="changeGuestPass()">💾 Guardar Clave Invitado</button>
+              <button class="btn btn-warning btn-sm" onclick="resetGuestPass()">🔄 Resetear</button>
+            </div>
+            <div id="guest-pass-msg" style="margin-top:8px;font-size:12px;font-weight:600;"></div>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-secondary);">
+              💡 Los invitados pueden ver y cargar resultados, pero no cambiar claves ni configurar Drive.
+            </div>
+          </div>
+
+          <div style="padding:16px;border:2px solid var(--border);border-radius:var(--radius);background:var(--bg-card);">
+            <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;">🚪 Sesión</div>
+            <div class="actions">
+              <button class="btn btn-danger" onclick="logout()">🔒 Cerrar Sesión</button>
+            </div>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-secondary);">
+              Al cerrar sesión volvés a la pantalla de login.
+            </div>
+          </div>
+        </div>
+
+        <div id="guest-blocked-msg" style="display:none;margin-top:20px;padding:14px;background:var(--danger-light);border-radius:var(--radius-sm);border-left:4px solid var(--danger);">
+          <div style="font-size:13px;font-weight:700;color:var(--danger);">🚫 Acceso restringido</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Solo el administrador puede ver este panel.</div>
+        </div>
+      </div>
+
+      <div class="card" id="drive-config-card">
         <div class="card-title">🔗 Sincronización con Google Drive</div>
         <p class="card-subtitle">Conectá la app con Google Sheets para que los jugadores vean resultados, canchas, horarios y sets en tiempo real.</p>
 
         <div class="alert alert-info" style="margin-bottom:14px;">
-          <strong>Paso 1:</strong> Descargá el archivo <strong>apps-script-federal-padel.js</strong> de abajo ↑ y copiá todo el código.<br>
+          <strong>Paso 1:</strong> Descargá el archivo <strong>apps-script-federal-padel.js</strong> y copiá todo el código.<br>
           <strong>Paso 2:</strong> Creá una hoja de Google Sheets nueva.<br>
           <strong>Paso 3:</strong> Andá a <em>Extensiones → Apps Script</em>.<br>
           <strong>Paso 4:</strong> Borrá el código por defecto y pegá el código descargado.<br>
@@ -511,6 +599,225 @@
     let groupResults = JSON.parse(localStorage.getItem('fp_groupResults') || '{}');
     let knockoutMatches = JSON.parse(localStorage.getItem('fp_knockoutMatches') || '[]');
     let knockoutResults = JSON.parse(localStorage.getItem('fp_knockoutResults') || '{}');
+
+    // ===== SISTEMA DE LOGIN =====
+    let adminPassword = localStorage.getItem('fp_adminPass') || '';
+    let guestPassword = localStorage.getItem('fp_guestPass') || '';
+    let currentUserRole = localStorage.getItem('fp_userRole') || '';
+
+    function checkLogin() {
+      if (!adminPassword && !guestPassword) {
+        document.getElementById('first-time-msg').style.display = 'block';
+        return;
+      }
+      if (currentUserRole) {
+        document.getElementById('login-screen').style.display = 'none';
+      }
+    }
+
+    function doLogin() {
+      const input = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+      if (!adminPassword && !guestPassword) {
+        if (input === '') {
+          currentUserRole = 'admin';
+          localStorage.setItem('fp_userRole', 'admin');
+          document.getElementById('login-screen').style.display = 'none';
+          return;
+        }
+        errorEl.textContent = 'Primera vez: dejá el campo vacío para entrar como administrador.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (input === adminPassword) {
+        currentUserRole = 'admin';
+        localStorage.setItem('fp_userRole', 'admin');
+        document.getElementById('login-screen').style.display = 'none';
+        return;
+      }
+      if (input === guestPassword) {
+        currentUserRole = 'guest';
+        localStorage.setItem('fp_userRole', 'guest');
+        document.getElementById('login-screen').style.display = 'none';
+        return;
+      }
+      errorEl.textContent = '❌ Clave incorrecta. No tenés acceso.';
+      errorEl.style.display = 'block';
+    }
+
+    function logout() {
+      currentUserRole = '';
+      localStorage.removeItem('fp_userRole');
+      location.reload();
+    }
+
+    function setAdminPassword(newPass) {
+      adminPassword = newPass;
+      localStorage.setItem('fp_adminPass', newPass);
+    }
+
+    function setGuestPassword(newPass) {
+      guestPassword = newPass;
+      localStorage.setItem('fp_guestPass', newPass);
+    }
+
+    // ===== FIREBASE MULTI-DISPOSITIVO =====
+    const firebaseConfig = {
+      apiKey: "AIzaSyDummyKeyForFederalPadel",
+      authDomain: "federal-padel.firebaseapp.com",
+      databaseURL: "https://federal-padel-default-rtdb.firebaseio.com",
+      projectId: "federal-padel",
+      storageBucket: "federal-padel.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef123456"
+    };
+
+    let firebaseApp = null;
+    let firebaseDb = null;
+    let currentRoom = localStorage.getItem('fp_room') || '';
+    let isSyncingFromFirebase = false;
+
+    function initFirebase() {
+      try {
+        if (!firebase.apps.length) {
+          firebaseApp = firebase.initializeApp(firebaseConfig);
+        } else {
+          firebaseApp = firebase.app();
+        }
+        firebaseDb = firebase.database();
+        console.log('Firebase inicializado');
+        if (currentRoom) joinRoom(currentRoom);
+        renderRoomStatus();
+      } catch(e) { console.error('Firebase error:', e); }
+    }
+
+    function generateRoomCode() {
+      return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    function createRoom() {
+      const code = generateRoomCode();
+      currentRoom = code;
+      localStorage.setItem('fp_room', code);
+      saveToFirebase();
+      listenToFirebase();
+      renderRoomStatus();
+      alert('🏟️ Torneo creado! Código: ' + code + '\nCompartilo con los organizadores.');
+    }
+
+    function joinRoom(code) {
+      if (!code || code.length < 4) { alert('Código inválido'); return; }
+      currentRoom = code.toUpperCase().trim();
+      localStorage.setItem('fp_room', currentRoom);
+      listenToFirebase();
+      renderRoomStatus();
+      alert('✅ Unido al torneo: ' + currentRoom);
+    }
+
+    function leaveRoom() {
+      if (firebaseDb && currentRoom) {
+        firebaseDb.ref('tournaments/' + currentRoom).off();
+      }
+      currentRoom = '';
+      localStorage.removeItem('fp_room');
+      renderRoomStatus();
+    }
+
+    function saveToFirebase() {
+      if (!firebaseDb || !currentRoom || isSyncingFromFirebase) return;
+      const data = {
+        teams, zones, courts, groupMatches, groupResults,
+        knockoutMatches, knockoutResults,
+        updatedAt: Date.now(),
+        updatedBy: 'organizer'
+      };
+      firebaseDb.ref('tournaments/' + currentRoom).set(data)
+        .then(() => console.log('Firebase sync OK'))
+        .catch(e => console.error('Firebase sync error:', e));
+    }
+
+    function listenToFirebase() {
+      if (!firebaseDb || !currentRoom) return;
+      firebaseDb.ref('tournaments/' + currentRoom).on('value', snapshot => {
+        const data = snapshot.val();
+        if (!data) return;
+        isSyncingFromFirebase = true;
+        if (data.teams) teams = data.teams;
+        if (data.zones) zones = data.zones;
+        if (data.courts) courts = data.courts;
+        if (data.groupMatches) groupMatches = data.groupMatches;
+        if (data.groupResults) groupResults = data.groupResults;
+        if (data.knockoutMatches) knockoutMatches = data.knockoutMatches;
+        if (data.knockoutResults) knockoutResults = data.knockoutResults;
+        saveLocal();
+        renderAll();
+        setTimeout(() => { isSyncingFromFirebase = false; }, 500);
+      });
+    }
+
+    function saveLocal() {
+      localStorage.setItem('fp_teams', JSON.stringify(teams));
+      localStorage.setItem('fp_zones', JSON.stringify(zones));
+      localStorage.setItem('fp_courts', JSON.stringify(courts));
+      localStorage.setItem('fp_groupMatches', JSON.stringify(groupMatches));
+      localStorage.setItem('fp_groupResults', JSON.stringify(groupResults));
+      localStorage.setItem('fp_knockoutMatches', JSON.stringify(knockoutMatches));
+      localStorage.setItem('fp_knockoutResults', JSON.stringify(knockoutResults));
+    }
+
+    function renderRoomStatus() {
+      const el = document.getElementById('room-status');
+      if (!el) return;
+      if (currentRoom) {
+        el.innerHTML = '<div class="alert alert-success">🏟️ Conectado al torneo: <strong>' + currentRoom + '</strong> (sincronización en tiempo real activa)</div>';
+      } else {
+        el.innerHTML = '<div class="alert alert-info">⚠️ No estás conectado a ningún torneo. Creá uno o unite con un código.</div>';
+      }
+    }
+
+    function changeAdminPass() {
+      const newPass = document.getElementById('admin-pass-input').value;
+      if (!newPass) { document.getElementById('admin-pass-msg').innerHTML = '<span style="color:var(--warning);">⚠️ Dejá vacío para mantener la actual</span>'; return; }
+      setAdminPassword(newPass);
+      document.getElementById('admin-pass-input').value = '';
+      document.getElementById('admin-pass-msg').innerHTML = '<span style="color:var(--success);">✅ Clave de admin actualizada</span>';
+      setTimeout(() => document.getElementById('admin-pass-msg').innerHTML = '', 3000);
+    }
+
+    function changeGuestPass() {
+      const newPass = document.getElementById('guest-pass-input').value;
+      if (!newPass) { document.getElementById('guest-pass-msg').innerHTML = '<span style="color:var(--warning);">⚠️ Ingresá una clave</span>'; return; }
+      setGuestPassword(newPass);
+      document.getElementById('guest-pass-input').value = '';
+      document.getElementById('current-guest-pass').textContent = '●●●●●●';
+      document.getElementById('guest-pass-msg').innerHTML = '<span style="color:var(--success);">✅ Clave de invitado actualizada</span>';
+      setTimeout(() => document.getElementById('guest-pass-msg').innerHTML = '', 3000);
+    }
+
+    function resetGuestPass() {
+      if (!confirm('¿Eliminar la clave de invitado? Los invitados no podrán acceder.')) return;
+      setGuestPassword('');
+      document.getElementById('current-guest-pass').textContent = 'Sin configurar';
+      document.getElementById('guest-pass-msg').innerHTML = '<span style="color:var(--success);">✅ Clave de invitado eliminada</span>';
+      setTimeout(() => document.getElementById('guest-pass-msg').innerHTML = '', 3000);
+    }
+
+    function renderAdminPanel() {
+      if (currentUserRole !== 'admin') {
+        document.getElementById('admin-only-content').style.display = 'none';
+        document.getElementById('guest-blocked-msg').style.display = 'block';
+        document.getElementById('drive-config-card').style.display = 'none';
+      } else {
+        document.getElementById('admin-only-content').style.display = 'block';
+        document.getElementById('guest-blocked-msg').style.display = 'none';
+        document.getElementById('drive-config-card').style.display = 'block';
+        document.getElementById('current-guest-pass').textContent = guestPassword ? '●●●●●●' : 'Sin configurar';
+      }
+    }
+
+    function renderAll() {
+      renderTeams(); renderZones(); renderCourts(); renderGroups(); renderStandings(); renderKnockout(); renderPending(); renderPaid();
+    }
     let driveUrl = localStorage.getItem('fp_driveUrl') || '';
     let autoSync = localStorage.getItem('fp_autoSync') === 'true';
     let teamFilter = 'all';
@@ -532,6 +839,7 @@
       localStorage.setItem('fp_groupResults', JSON.stringify(groupResults));
       localStorage.setItem('fp_knockoutMatches', JSON.stringify(knockoutMatches));
       localStorage.setItem('fp_knockoutResults', JSON.stringify(knockoutResults));
+      saveToFirebase();
       if (autoSync && driveUrl) debouncedSync();
     }
 
@@ -544,10 +852,14 @@
       if (name === 'zones') renderZones();
       if (name === 'groups') renderGroups();
       if (name === 'standings') renderStandings();
+      if (name === 'room') renderRoomStatus();
+      if (name === 'admin') { renderConfig(); renderAdminPanel(); }
       if (name === 'knockout') renderKnockout();
       if (name === 'pending') renderPending();
       if (name === 'paid') renderPaid();
       if (name === 'courts') renderCourts();
+      if (name === 'room') renderRoomStatus();
+      if (name === 'admin') { renderConfig(); renderAdminPanel(); }
       if (name === 'config') renderConfig();
     }
 
@@ -1417,6 +1729,11 @@
     // Init
     renderTeams();
     if (autoSync && driveUrl) { setSyncStatus('idle', 'Sincronización automática activada'); }
-  </script>
+  
+    // Inicializar al cargar
+    checkLogin();
+    initFirebase();
+    renderTeams(); renderZones(); renderGroups(); renderStandings(); renderKnockout(); renderCourts(); renderPending(); renderPaid(); renderConfig();
+</script>
 </body>
 </html>
