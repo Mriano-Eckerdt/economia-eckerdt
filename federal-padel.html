@@ -306,7 +306,7 @@
       <button class="tab" onclick="showTab('pending')">❌ Pendientes</button>
       <button class="tab" onclick="showTab('paid')">✅ Pagaron</button>
       <button class="tab" onclick="showTab('room')">🏟️ Torneo</button>
-      <button class="tab" onclick="showTab('config')">⚙️ Config</button>
+      <button class="tab" onclick="showTab('admin')">⚙️ Admin</button>
     </div>
 
     <!-- EQUIPOS -->
@@ -804,6 +804,11 @@
 
     function initFirebase() {
       try {
+        if (!firebase || !firebase.apps) {
+          console.log('Firebase no disponible (modo offline)');
+          renderRoomStatus();
+          return;
+        }
         if (!firebase.apps.length) {
           firebaseApp = firebase.initializeApp(firebaseConfig);
         } else {
@@ -813,7 +818,11 @@
         console.log('Firebase inicializado');
         if (currentRoom) joinRoom(currentRoom);
         renderRoomStatus();
-      } catch(e) { console.error('Firebase error:', e); }
+      } catch(e) {
+        console.error('Firebase error:', e);
+        firebaseDb = null;
+        renderRoomStatus();
+      }
     }
 
     function generateRoomCode() {
@@ -834,7 +843,12 @@
       if (!code || code.length < 4) { alert('Código inválido'); return; }
       currentRoom = code.toUpperCase().trim();
       localStorage.setItem('fp_room', currentRoom);
-      listenToFirebase();
+      if (firebaseDb) {
+        listenToFirebase();
+      } else {
+        alert('⚠️ Modo offline: no hay sincronización en tiempo real.
+Configurá Firebase para usar esta función.');
+      }
       renderRoomStatus();
       alert('✅ Unido al torneo: ' + currentRoom);
     }
@@ -856,28 +870,36 @@
         updatedAt: Date.now(),
         updatedBy: 'organizer'
       };
-      firebaseDb.ref('tournaments/' + currentRoom).set(data)
-        .then(() => console.log('Firebase sync OK'))
-        .catch(e => console.error('Firebase sync error:', e));
+      try {
+        firebaseDb.ref('tournaments/' + currentRoom).set(data)
+          .then(() => console.log('Firebase sync OK'))
+          .catch(e => console.error('Firebase sync error:', e));
+      } catch(e) {
+        console.error('Firebase save error:', e);
+      }
     }
 
     function listenToFirebase() {
       if (!firebaseDb || !currentRoom) return;
-      firebaseDb.ref('tournaments/' + currentRoom).on('value', snapshot => {
-        const data = snapshot.val();
-        if (!data) return;
-        isSyncingFromFirebase = true;
-        if (data.teams) teams = data.teams;
-        if (data.zones) zones = data.zones;
-        if (data.courts) courts = data.courts;
-        if (data.groupMatches) groupMatches = data.groupMatches;
-        if (data.groupResults) groupResults = data.groupResults;
-        if (data.knockoutMatches) knockoutMatches = data.knockoutMatches;
-        if (data.knockoutResults) knockoutResults = data.knockoutResults;
-        saveLocal();
-        renderAll();
-        setTimeout(() => { isSyncingFromFirebase = false; }, 500);
-      });
+      try {
+        firebaseDb.ref('tournaments/' + currentRoom).on('value', snapshot => {
+          const data = snapshot.val();
+          if (!data) return;
+          isSyncingFromFirebase = true;
+          if (data.teams) teams = data.teams;
+          if (data.zones) zones = data.zones;
+          if (data.courts) courts = data.courts;
+          if (data.groupMatches) groupMatches = data.groupMatches;
+          if (data.groupResults) groupResults = data.groupResults;
+          if (data.knockoutMatches) knockoutMatches = data.knockoutMatches;
+          if (data.knockoutResults) knockoutResults = data.knockoutResults;
+          saveLocal();
+          renderAll();
+          setTimeout(() => { isSyncingFromFirebase = false; }, 500);
+        });
+      } catch(e) {
+        console.error('Firebase listen error:', e);
+      }
     }
 
     function saveLocal() {
@@ -987,7 +1009,6 @@
       if (name === 'courts') renderCourts();
       if (name === 'room') renderRoomStatus();
       if (name === 'admin') { renderConfig(); renderAdminPanel(); }
-      if (name === 'config') { renderConfig(); renderAdminPanel(); }
       if (currentUserRole === 'guest') applyGuestRestrictions();
     }
 
