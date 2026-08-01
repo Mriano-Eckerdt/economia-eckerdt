@@ -259,7 +259,6 @@
   <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<base target="_blank">
 </head>
 <body>
   <div class="container">
@@ -612,6 +611,26 @@
       }
       if (currentUserRole) {
         document.getElementById('login-screen').style.display = 'none';
+        applyUserRole();
+      }
+    }
+
+    function applyUserRole() {
+      // Ocultar pestaña Admin para invitados
+      const adminTab = document.querySelector('button[onclick="showTab('admin')"]');
+      if (adminTab) adminTab.style.display = currentUserRole === 'admin' ? 'inline-block' : 'none';
+
+      // En Torneo: ocultar "Crear Torneo" para invitados
+      const createBtn = document.querySelector('button[onclick="createRoom()"]');
+      if (createBtn) {
+        const parent = createBtn.closest('div');
+        if (parent && currentUserRole === 'guest') parent.style.display = 'none';
+      }
+
+      // En Torneo: mostrar mensaje de solo lectura para invitados
+      const roomStatus = document.getElementById('room-status');
+      if (roomStatus && currentUserRole === 'guest') {
+        // Los invitados pueden unirse pero no crear
       }
     }
 
@@ -633,12 +652,14 @@
         currentUserRole = 'admin';
         localStorage.setItem('fp_userRole', 'admin');
         document.getElementById('login-screen').style.display = 'none';
+        applyUserRole();
         return;
       }
       if (input === guestPassword) {
         currentUserRole = 'guest';
         localStorage.setItem('fp_userRole', 'guest');
         document.getElementById('login-screen').style.display = 'none';
+        applyUserRole();
         return;
       }
       errorEl.textContent = '❌ Clave incorrecta. No tenés acceso.';
