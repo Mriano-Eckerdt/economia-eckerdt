@@ -259,7 +259,6 @@
   <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<base target="_blank">
 </head>
 <body>
   <div class="container">
@@ -306,6 +305,7 @@
       <button class="tab" onclick="showTab('knockout')">🏆 Eliminatorias</button>
       <button class="tab" onclick="showTab('pending')">❌ Pendientes</button>
       <button class="tab" onclick="showTab('paid')">✅ Pagaron</button>
+      <button class="tab" onclick="showTab('room')">🏟️ Torneo</button>
       <button class="tab" onclick="showTab('config')">⚙️ Config</button>
     </div>
 
@@ -463,6 +463,10 @@
 
         <div id="room-status"></div>
 
+        <div class="alert alert-warning" style="margin-top:12px;">
+          <strong>⚠️ Configuración necesaria:</strong> Para usar la sincronización multi-dispositivo, creá un proyecto en <a href="https://console.firebase.google.com" target="_blank">Firebase</a>, activá Realtime Database, y reemplazá la configuración en el código por la de tu proyecto.
+        </div>
+
         <div style="margin-top:16px;">
           <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;">Crear nuevo torneo</div>
           <div class="actions">
@@ -599,6 +603,44 @@
     let groupResults = JSON.parse(localStorage.getItem('fp_groupResults') || '{}');
     let knockoutMatches = JSON.parse(localStorage.getItem('fp_knockoutMatches') || '[]');
     let knockoutResults = JSON.parse(localStorage.getItem('fp_knockoutResults') || '{}');
+    let activeTournament = localStorage.getItem('fp_activeTournament') || 'all';
+    function getTournaments() {
+      const map = {};
+      zones.forEach(z => {
+        const key = z.cat + '|' + z.gender;
+        if (!map[key]) map[key] = { cat: z.cat, gender: z.gender, label: catFull(z.cat, z.gender), count: 0 };
+        map[key].count += (z.teamIds || []).length;
+      });
+      return Object.values(map).sort((a, b) => a.label.localeCompare(b.label));
+    }
+
+    function setActiveTournament(key) {
+      activeTournament = key;
+      localStorage.setItem('fp_activeTournament', key);
+      renderGroups(); renderStandings(); renderKnockout();
+    }
+
+    function renderTournamentFilter(containerId) {
+      const tournaments = getTournaments();
+      if (tournaments.length <= 1) return '';
+      const buttons = tournaments.map(t => {
+        const key = t.cat + '|' + t.gender;
+        const active = activeTournament === key;
+        return `<button class="filter-tab ${active ? 'active' : ''}" onclick="setActiveTournament('${key}')" style="${active ? '' : 'border-color:var(--border);background:var(--bg);color:var(--text-secondary);'}">${t.label} (${t.count} eq)</button>`;
+      }).join('');
+      const allActive = activeTournament === 'all';
+      return `<div class="filter-tabs" style="margin-bottom:14px;">
+        <button class="filter-tab ${allActive ? 'active' : ''}" onclick="setActiveTournament('all')" style="${allActive ? '' : 'border-color:var(--border);background:var(--bg);color:var(--text-secondary);'}">🏆 Todos</button>
+        ${buttons}
+      </div>`;
+    }
+
+    function matchesTournament(item) {
+      if (activeTournament === 'all') return true;
+      const [cat, gender] = activeTournament.split('|');
+      return item.cat === cat && item.gender === gender;
+    }
+
 
     // ===== SISTEMA DE LOGIN =====
     let adminPassword = localStorage.getItem('fp_adminPass') || '';
@@ -606,33 +648,94 @@
     let currentUserRole = localStorage.getItem('fp_userRole') || '';
 
     function checkLogin() {
-      if (!adminPassword && !guestPassword) {
-        document.getElementById('first-time-msg').style.display = 'block';
-        return;
-      }
+      // Si ya hay sesión activa, entrar directo
       if (currentUserRole) {
         document.getElementById('login-screen').style.display = 'none';
         applyUserRole();
+        return;
+      }
+      // Primera vez: no hay contraseñas configuradas
+      if (!adminPassword && !guestPassword) {
+        document.getElementById('first-time-msg').style.display = 'block';
       }
     }
 
     function applyUserRole() {
-      // Ocultar pestaña Admin para invitados
-      const adminTab = document.querySelector('button[onclick="showTab(\'admin\')"]');
-      if (adminTab) adminTab.style.display = currentUserRole === 'admin' ? 'inline-block' : 'none';
+      // Ocultar pestaña Config para invitados (solo admin ve Config)
+      const configTab = document.querySelector('button[onclick="showTab(\'config\')"]');
+      if (configTab) configTab.style.display = currentUserRole === 'admin' ? 'inline-block' : 'none';
 
-      // En Torneo: ocultar "Crear Torneo" para invitados
-      const createBtn = document.querySelector('button[onclick="createRoom()"]');
-      if (createBtn) {
-        const parent = createBtn.closest('div');
-        if (parent && currentUserRole === 'guest') parent.style.display = 'none';
+      // Aplicar modo invitado (solo lectura)
+      if (currentUserRole === 'guest') {
+        document.body.classList.add('guest-mode');
+        applyGuestRestrictions();
+      } else {
+        document.body.classList.remove('guest-mode');
+        removeGuestRestrictions();
       }
+    }
 
-      // En Torneo: mostrar mensaje de solo lectura para invitados
-      const roomStatus = document.getElementById('room-status');
-      if (roomStatus && currentUserRole === 'guest') {
-        // Los invitados pueden unirse pero no crear
+    function applyGuestRestrictions() {
+      // INVITADO: puede CARGAR datos nuevos, NO puede MODIFICAR datos existentes
+      // 1. Score inputs: habilitados si están vacíos, deshabilitados si ya tienen valor
+      document.querySelectorAll('.score-input').forEach(el => {
+        const val = el.value;
+        el.disabled = (val !== '' && val !== null && val !== undefined);
+      });
+      // 2. Ocultar botones de eliminar (✕) en listas dinámicas
+      document.querySelectorAll('.team-actions .btn-danger, .team-actions .btn-secondary').forEach(el => el.style.display = 'none');
+      // 3. Ocultar botones de limpiar todo
+      const clearBtn = document.querySelector('button[onclick="clearTeams()"]');
+      if (clearBtn) clearBtn.style.display = 'none';
+      const clearGroupBtn = document.querySelector('button[onclick="clearGroupFixture()"]');
+      if (clearGroupBtn) clearGroupBtn.style.display = 'none';
+      const clearKnockBtn = document.querySelector('button[onclick="clearKnockout()"]');
+      if (clearKnockBtn) clearKnockBtn.style.display = 'none';
+      // 4. Ocultar toggles de pago (solo admin marca pagos)
+      document.querySelectorAll('button[onclick^="togglePlayerPayment"]').forEach(el => el.style.display = 'none');
+      // 5. Ocultar selects de método de pago
+      document.querySelectorAll('.payment-method-select').forEach(el => el.style.display = 'none');
+      // 6. Ocultar botones de admin
+      const adminBtns = [
+        'button[onclick="changeAdminPass()"]',
+        'button[onclick="changeGuestPass()"]',
+        'button[onclick="resetGuestPass()"]'
+      ];
+      adminBtns.forEach(sel => {
+        const btn = document.querySelector(sel);
+        if (btn) btn.style.display = 'none';
+      });
+      // 7. Mostrar banner de modo invitado
+      let banner = document.getElementById('guest-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'guest-banner';
+        banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:var(--warning);color:#422006;padding:10px;text-align:center;font-weight:800;font-size:13px;z-index:9999;border-top:2px solid #ca8a04;';
+        banner.innerHTML = '👁️ Modo Invitado — Podés cargar datos nuevos. No podés modificar lo ya cargado.';
+        document.body.appendChild(banner);
       }
+      banner.style.display = 'block';
+    }
+
+    function removeGuestRestrictions() {
+      document.querySelectorAll('.score-input').forEach(el => el.disabled = false);
+      const showSelectors = [
+        'button[onclick="clearTeams()"]',
+        'button[onclick="clearGroupFixture()"]',
+        'button[onclick="clearKnockout()"]',
+        'button[onclick="changeAdminPass()"]',
+        'button[onclick="changeGuestPass()"]',
+        'button[onclick="resetGuestPass()"]'
+      ];
+      showSelectors.forEach(sel => {
+        const btn = document.querySelector(sel);
+        if (btn) btn.style.display = '';
+      });
+      document.querySelectorAll('.team-actions .btn-danger, .team-actions .btn-secondary').forEach(el => el.style.display = '');
+      document.querySelectorAll('button[onclick^="togglePlayerPayment"]').forEach(el => el.style.display = '');
+      document.querySelectorAll('.payment-method-select').forEach(el => el.style.display = '');
+      const banner = document.getElementById('guest-banner');
+      if (banner) banner.style.display = 'none';
     }
 
     function doLogin() {
@@ -839,6 +942,7 @@
 
     function renderAll() {
       renderTeams(); renderZones(); renderCourts(); renderGroups(); renderStandings(); renderKnockout(); renderPending(); renderPaid();
+      if (currentUserRole === 'guest') applyGuestRestrictions();
     }
     let driveUrl = localStorage.getItem('fp_driveUrl') || '';
     let autoSync = localStorage.getItem('fp_autoSync') === 'true';
@@ -861,6 +965,7 @@
       localStorage.setItem('fp_groupResults', JSON.stringify(groupResults));
       localStorage.setItem('fp_knockoutMatches', JSON.stringify(knockoutMatches));
       localStorage.setItem('fp_knockoutResults', JSON.stringify(knockoutResults));
+      localStorage.setItem('fp_activeTournament', activeTournament);
       saveToFirebase();
       if (autoSync && driveUrl) debouncedSync();
     }
@@ -882,7 +987,8 @@
       if (name === 'courts') renderCourts();
       if (name === 'room') renderRoomStatus();
       if (name === 'admin') { renderConfig(); renderAdminPanel(); }
-      if (name === 'config') renderConfig();
+      if (name === 'config') { renderConfig(); renderAdminPanel(); }
+      if (currentUserRole === 'guest') applyGuestRestrictions();
     }
 
     // ====== EQUIPOS ======
@@ -924,6 +1030,7 @@
     }
 
     function togglePlayerPayment(teamId, playerNum) {
+      if (currentUserRole === 'guest') { alert('🚫 Solo el administrador puede modificar pagos.'); return; }
       const t = teams.find(x => x.id == teamId);
       if (!t) return;
       if (playerNum === 1) t.p1Paid = !t.p1Paid;
@@ -932,6 +1039,7 @@
     }
 
     function setPlayerMethod(teamId, playerNum, method) {
+      if (currentUserRole === 'guest') return;
       const t = teams.find(x => x.id == teamId);
       if (!t) return;
       if (playerNum === 1) { t.p1Method = method; if (method) t.p1Paid = true; }
@@ -1076,6 +1184,7 @@
       return `<input type="time" class="score-input" style="width:90px;padding:6px 8px;font-size:13px;" value="${value}" onchange="${onchange}" />`;
     }
     function saveGroupCourt(mid, courtId) {
+      if (currentUserRole === 'guest') return;
       const m = groupMatches.find(x => x.id == mid);
       if (!m) return;
       m.courtId = courtId ? parseFloat(courtId) : null;
@@ -1089,6 +1198,7 @@
       save();
     }
     function saveKnockoutCourt(mid, courtId) {
+      if (currentUserRole === 'guest') return;
       const m = knockoutMatches.find(x => x.id == mid);
       if (!m) return;
       m.courtId = courtId ? parseFloat(courtId) : null;
@@ -1215,6 +1325,9 @@
       renderGroups();
     }
     function saveGroupResult(mid, field, val) {
+      const existing = groupResults[mid] && groupResults[mid][field];
+      const hasValue = (existing !== undefined && existing !== '' && existing !== null);
+      if (currentUserRole === 'guest' && hasValue) { alert('🚫 Solo el administrador puede modificar resultados ya cargados.'); return; }
       if (!groupResults[mid]) groupResults[mid] = {};
       groupResults[mid][field] = parseInt(val) || 0;
       save();
@@ -1226,8 +1339,11 @@
     }
     function renderGroups() {
       const cont = document.getElementById('groups-content');
-      if (!groupMatches.length) { cont.innerHTML = '<div class="empty">Generá el fixture de grupos primero</div>'; return; }
-      cont.innerHTML = zones.map(z => {
+      const filterHtml = renderTournamentFilter('groups-filter');
+      if (!groupMatches.length) { cont.innerHTML = filterHtml + '<div class="empty">Generá el fixture de grupos primero</div>'; return; }
+      const filteredZones = zones.filter(z => matchesTournament(z));
+      if (!filteredZones.length) { cont.innerHTML = filterHtml + '<div class="empty">No hay zonas en esta categoría</div>'; return; }
+      cont.innerHTML = filterHtml + filteredZones.map(z => {
         const zMatches = groupMatches.filter(m => m.zoneId == z.id);
         if (!zMatches.length) return '';
         return `<div class="card">
@@ -1318,7 +1434,9 @@
     }
     function renderStandings() {
       const cont = document.getElementById('standings-content');
-      if (!zones.length) { cont.innerHTML = '<div class="empty">No hay zonas</div>'; return; }
+      const filterHtml = renderTournamentFilter('standings-filter');
+      const filteredZones = zones.filter(z => matchesTournament(z));
+      if (!filteredZones.length) { cont.innerHTML = filterHtml + '<div class="empty">No hay zonas en esta categoría</div>'; return; }
       const legend = `<div style="margin-bottom:14px;padding:14px 18px;border:2px solid var(--border);border-radius:var(--radius);background:var(--bg-card);font-size:13px;color:var(--text-secondary);font-weight:600;line-height:2;box-shadow:var(--shadow);">
         <strong style="color:var(--text);">📖 Leyenda de la tabla:</strong>
         <span style="margin-left:8px;"><strong style="color:var(--accent);">PJ</strong> = Partidos Jugados</span> •
@@ -1331,7 +1449,7 @@
         <span style="margin-left:4px;"><strong style="color:var(--accent);">Dif</strong> = Diferencia de Games</span> •
         <span style="margin-left:4px;"><strong style="color:var(--accent);">Pts</strong> = Puntos (3 por ganar, 1 por empate)</span>
       </div>`;
-      cont.innerHTML = legend + zones.map(z => {
+      cont.innerHTML = filterHtml + legend + filteredZones.map(z => {
         const standings = calcZoneStandings(z.id);
         if (!standings.length) return '';
         return `<div class="card">
@@ -1388,78 +1506,92 @@
         return;
       }
       const qualifiers = getZoneQualifiers();
-      const zoneList = zones.slice();
-      const allQ = [];
-      zoneList.forEach(z => {
+      // Separar qualifiers por categoría + género
+      const byTournament = {};
+      zones.forEach(z => {
         const q = qualifiers[z.id] || [];
+        const key = z.cat + '|' + z.gender;
+        if (!byTournament[key]) byTournament[key] = [];
         q.forEach((tid, idx) => {
-          allQ.push({ tid, zoneId: z.id, pos: idx + 1, zoneName: z.name, cat: z.cat, gender: z.gender });
+          byTournament[key].push({ tid, zoneId: z.id, pos: idx + 1, zoneName: z.name, cat: z.cat, gender: z.gender });
         });
       });
-      const total = allQ.length;
-      if (total < 2) { alert('No hay suficientes equipos clasificados'); return; }
+
+      let totalMatches = 0;
+      let totalRounds = 0;
       knockoutMatches = [];
       let matchId = Date.now();
-      const zonesWith1st = allQ.filter(q => q.pos === 1);
-      const zonesWith2nd = allQ.filter(q => q.pos === 2);
-      const zonesWith3rd = allQ.filter(q => q.pos === 3);
-      const used = new Set();
-      const firstRound = [];
-      for (let i = 0; i < zonesWith1st.length; i++) {
-        const a = zonesWith1st[i];
-        const b = zonesWith2nd.find(q => q.zoneId !== a.zoneId && q.gender === a.gender && !used.has(q.tid));
-        if (b) {
-          firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 1° vs ' + b.zoneName + ' 2°', courtId: null, courtName: null, time: null });
-          used.add(a.tid); used.add(b.tid);
-        }
-      }
-      zonesWith1st.forEach(a => {
-        if (!used.has(a.tid)) {
-          const b = zonesWith3rd.find(q => q.zoneId !== a.zoneId && q.gender === a.gender && !used.has(q.tid));
+
+      Object.keys(byTournament).forEach(key => {
+        const allQ = byTournament[key];
+        if (allQ.length < 2) return;
+
+        const zonesWith1st = allQ.filter(q => q.pos === 1);
+        const zonesWith2nd = allQ.filter(q => q.pos === 2);
+        const zonesWith3rd = allQ.filter(q => q.pos === 3);
+        const used = new Set();
+        const firstRound = [];
+
+        for (let i = 0; i < zonesWith1st.length; i++) {
+          const a = zonesWith1st[i];
+          const b = zonesWith2nd.find(q => q.zoneId !== a.zoneId && !used.has(q.tid));
           if (b) {
-            firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 1° vs ' + b.zoneName + ' 3°', courtId: null, courtName: null, time: null });
+            firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 1° vs ' + b.zoneName + ' 2°', courtId: null, courtName: null, time: null });
             used.add(a.tid); used.add(b.tid);
           }
         }
-      });
-      zonesWith2nd.forEach(a => {
-        if (!used.has(a.tid)) {
-          const b = zonesWith3rd.find(q => q.zoneId !== a.zoneId && q.gender === a.gender && !used.has(q.tid));
-          if (b) {
-            firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 2° vs ' + b.zoneName + ' 3°', courtId: null, courtName: null, time: null });
-            used.add(a.tid); used.add(b.tid);
+        zonesWith1st.forEach(a => {
+          if (!used.has(a.tid)) {
+            const b = zonesWith3rd.find(q => q.zoneId !== a.zoneId && !used.has(q.tid));
+            if (b) {
+              firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 1° vs ' + b.zoneName + ' 3°', courtId: null, courtName: null, time: null });
+              used.add(a.tid); used.add(b.tid);
+            }
           }
+        });
+        zonesWith2nd.forEach(a => {
+          if (!used.has(a.tid)) {
+            const b = zonesWith3rd.find(q => q.zoneId !== a.zoneId && !used.has(q.tid));
+            if (b) {
+              firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 2° vs ' + b.zoneName + ' 3°', courtId: null, courtName: null, time: null });
+              used.add(a.tid); used.add(b.tid);
+            }
+          }
+        });
+        allQ.forEach(q => {
+          if (!used.has(q.tid)) {
+            firstRound.push({ id: matchId++, t1: q.tid, t2: null, round: 1, cat: q.cat, gender: q.gender, label: q.zoneName + ' ' + q.pos + '° (bye)', bye: true, courtId: null, courtName: null, time: null });
+            used.add(q.tid);
+          }
+        });
+
+        let currentRound = firstRound;
+        let allMatches = [...firstRound];
+        let roundNum = 2;
+        while (currentRound.length > 1) {
+          const nextRound = [];
+          for (let i = 0; i < currentRound.length; i += 2) {
+            const m1 = currentRound[i];
+            const m2 = currentRound[i+1];
+            nextRound.push({
+              id: matchId++, t1: null, t2: null, round: roundNum, cat: m1.cat, gender: m1.gender,
+              prev1: m1.id, prev2: m2 ? m2.id : null,
+              label: 'Ganador anterior vs Ganador anterior',
+              courtId: null, courtName: null, time: null
+            });
+          }
+          allMatches = allMatches.concat(nextRound);
+          currentRound = nextRound;
+          roundNum++;
         }
+        knockoutMatches = knockoutMatches.concat(allMatches);
+        totalMatches += allMatches.length;
+        totalRounds = Math.max(totalRounds, roundNum - 1);
       });
-      allQ.forEach(q => {
-        if (!used.has(q.tid)) {
-          firstRound.push({ id: matchId++, t1: q.tid, t2: null, round: 1, cat: q.cat, gender: q.gender, label: q.zoneName + ' ' + q.pos + '° (bye)', bye: true, courtId: null, courtName: null, time: null });
-          used.add(q.tid);
-        }
-      });
-      let currentRound = firstRound;
-      let allMatches = [...firstRound];
-      let roundNum = 2;
-      while (currentRound.length > 1) {
-        const nextRound = [];
-        for (let i = 0; i < currentRound.length; i += 2) {
-          const m1 = currentRound[i];
-          const m2 = currentRound[i+1];
-          nextRound.push({
-            id: matchId++, t1: null, t2: null, round: roundNum, cat: m1.cat, gender: m1.gender,
-            prev1: m1.id, prev2: m2 ? m2.id : null,
-            label: 'Ganador #' + (allMatches.indexOf(m1)+1) + (m2 ? ' vs Ganador #' + (allMatches.indexOf(m2)+1) : ' (bye)'),
-            courtId: null, courtName: null, time: null
-          });
-        }
-        allMatches = allMatches.concat(nextRound);
-        currentRound = nextRound;
-        roundNum++;
-      }
-      knockoutMatches = allMatches;
+
       save();
       renderKnockout();
-      alert('Eliminatorias generadas: ' + knockoutMatches.length + ' partidos en ' + (roundNum-1) + ' rondas');
+      alert('Eliminatorias generadas: ' + totalMatches + ' partidos en ' + totalRounds + ' rondas (por categoría)');
     }
 
     function clearKnockout() {
@@ -1496,6 +1628,9 @@
     }
 
     function saveKnockoutResult(mid, field, val) {
+      const existing = knockoutResults[mid] && knockoutResults[mid][field];
+      const hasValue = (existing !== undefined && existing !== '' && existing !== null);
+      if (currentUserRole === 'guest' && hasValue) { alert('🚫 Solo el administrador puede modificar resultados ya cargados.'); return; }
       if (!knockoutResults[mid]) knockoutResults[mid] = {};
       knockoutResults[mid][field] = parseInt(val) || 0;
       save();
@@ -1507,12 +1642,14 @@
       resolveKnockoutTeams();
       const info = document.getElementById('knockout-info');
       const bracket = document.getElementById('knockout-bracket');
-      if (!knockoutMatches.length) {
+      const filterHtml = renderTournamentFilter('knockout-filter');
+      const filteredMatches = knockoutMatches.filter(m => matchesTournament(m));
+      if (!filteredMatches.length) {
         info.innerHTML = '';
-        bracket.innerHTML = '<div class="empty">Generá las eliminatorias primero</div>';
+        bracket.innerHTML = filterHtml + '<div class="empty">Generá las eliminatorias primero</div>';
         return;
       }
-      const maxRound = Math.max(...knockoutMatches.map(m => m.round));
+      const maxRound = Math.max(...filteredMatches.map(m => m.round));
       const roundNames = {};
       for (let r = 1; r <= maxRound; r++) {
         const remaining = maxRound - r;
@@ -1528,7 +1665,7 @@
 
       // Detectar campeón y subcampeón (se renderiza al final del bracket)
       let championHtml = '';
-      const finalMatches = knockoutMatches.filter(m => m.round === maxRound);
+      const finalMatches = filteredMatches.filter(m => m.round === maxRound);
       if (finalMatches.length > 0) {
         const finalMatch = finalMatches[0];
         const r = knockoutResults[finalMatch.id];
@@ -1550,8 +1687,8 @@
         }
       }
       const rounds = {};
-      for (let r = 1; r <= maxRound; r++) rounds[r] = knockoutMatches.filter(m => m.round == r);
-      bracket.innerHTML = `<div class="bracket">${Object.keys(rounds).map(rn => {
+      for (let r = 1; r <= maxRound; r++) rounds[r] = filteredMatches.filter(m => m.round == r);
+      bracket.innerHTML = filterHtml + `<div class="bracket">${Object.keys(rounds).map(rn => {
         const rMatches = rounds[rn];
         return `<div class="bracket-col">
           <div style="text-align:center;font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:8px;">${roundNames[rn] || 'Ronda ' + rn}</div>
