@@ -259,6 +259,7 @@
   <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<base target="_blank">
 </head>
 <body>
   <div class="container">
@@ -617,7 +618,7 @@
 
     function applyUserRole() {
       // Ocultar pestaña Admin para invitados
-      const adminTab = document.querySelector('button[onclick="showTab('admin')"]');
+      const adminTab = document.querySelector('button[onclick="showTab(\'admin\')"]');
       if (adminTab) adminTab.style.display = currentUserRole === 'admin' ? 'inline-block' : 'none';
 
       // En Torneo: ocultar "Crear Torneo" para invitados
