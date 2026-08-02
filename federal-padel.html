@@ -858,8 +858,7 @@
       if (firebaseDb) {
         listenToFirebase();
       } else {
-        alert('⚠️ Modo offline: no hay sincronización en tiempo real.
-Configurá Firebase para usar esta función.');
+        alert('⚠️ Modo offline: no hay sincronización en tiempo real. Configurá Firebase para usar esta función.');
       }
       renderRoomStatus();
       alert('✅ Unido al torneo: ' + currentRoom);
@@ -1025,6 +1024,60 @@ Configurá Firebase para usar esta función.');
     }
 
     // ====== EQUIPOS ======
+    function loadDemoData() {
+      if (teams.length > 0) return;
+      const cabCats = ['1ra','2da','3ra','4ta','5ta','6ta','7ma'];
+      const cabNames = [
+        ['Gonzalo Perez','Martin Lopez'],['Diego Fernandez','Juan Rodriguez'],['Carlos Gomez','Andres Silva'],['Lucas Martinez','Pablo Torres'],
+        ['Mariano Eckerdt','Federico Ruiz'],['Santiago Acosta','Nicolas Benitez'],['Bruno Castillo','Tomas Diaz'],['Mateo Sosa','Joaquin Vega'],
+        ['Leandro Morales','Emiliano Rojas'],['Agustin Herrera','Maximiliano Luna'],['Facundo Medina','Cristian Ortiz'],['Ramiro Peralta','Ezequiel Ramos'],
+        ['Julio Cesar','Roberto Carlos'],['Miguel Angel','Gabriel Santos'],['Ricardo Flores','Alejandro Vargas'],['Daniel Castro','Hernan Guzman'],
+        ['Fernando Reyes','Oscar Navarro'],['Alberto Pena','Mario Ibarra'],['Jorge Campos','Raul Espinoza'],['Eduardo Rivas','Sergio Maldonado'],
+        ['Hugo Salazar','Victor Palacios'],['Luis Arce','Pedro Miranda'],['Antonio Leon','Francisco Duarte'],['Javier Mendoza','Rafael Cordoba'],
+        ['Domingo Figueroa','Ernesto Villanueva'],['Guillermo Bravo','Ignacio Fuentes'],['Rodrigo Gallardo','Samuel Aguirre'],['Patricio Bravo','Ulises Camacho']
+      ];
+      let tid = 1000;
+      cabCats.forEach((cat, ci) => {
+        for (let i = 0; i < 4; i++) {
+          const [p1, p2] = cabNames[ci * 4 + i];
+          teams.push({ id: tid++, p1: p1, p2: p2, cat: cat, gender: 'cab', name: p1 + ' / ' + p2, zoneId: null, p1Paid: i < 3, p1Method: i < 3 ? 'efectivo' : '', p2Paid: i < 3, p2Method: i < 3 ? 'efectivo' : '' });
+        }
+      });
+      const damNames = [
+        ['Maria Gonzalez','Laura Sanchez'],['Ana Martinez','Carmen Ruiz'],['Paula Torres','Sofia Diaz'],['Valentina Romero','Julieta Herrera'],
+        ['Florencia Luna','Victoria Castillo'],['Agustina Medina','Milagros Ortiz'],['Morena Peralta','Rocio Ramos'],['Belen Sosa','Camila Vega'],
+        ['Daniela Flores','Natalia Vargas'],['Luciana Castro','Mariana Guzman'],['Romina Reyes','Sol Navarro'],['Tatiana Pena','Yamila Ibarra'],
+        ['Abigail Campos','Brisa Espinoza'],['Celeste Rivas','Delfina Maldonado'],['Estefania Salazar','Gisela Palacios'],['Ivana Arce','Karen Miranda'],
+        ['Ludmila Leon','Magali Duarte'],['Noelia Mendoza','Oriana Cordoba'],['Priscila Figueroa','Quimey Villanueva'],['Romina Bravo','Selene Fuentes'],
+        ['Thalia Gallardo','Ursula Aguirre'],['Vanesa Bravo','Wanda Camacho'],['Ximena Diaz','Yanina Lopez'],['Zoe Martinez','Abril Ruiz'],
+        ['Carla Herrera','Elena Luna'],['Ines Medina','Julia Ortiz'],['Karla Peralta','Lia Ramos'],['Mora Sosa','Nina Vega']
+      ];
+      cabCats.forEach((cat, ci) => {
+        for (let i = 0; i < 4; i++) {
+          const [p1, p2] = damNames[ci * 4 + i];
+          teams.push({ id: tid++, p1: p1, p2: p2, cat: cat, gender: 'dam', name: p1 + ' / ' + p2, zoneId: null, p1Paid: i < 3, p1Method: i < 3 ? 'efectivo' : '', p2Paid: i < 3, p2Method: i < 3 ? 'efectivo' : '' });
+        }
+      });
+      let zid = 5001;
+      cabCats.forEach(cat => {
+        const tids = teams.filter(t => t.cat === cat && t.gender === 'cab').map(t => t.id);
+        if (tids.length >= 3) {
+          const z = { id: zid++, name: 'Zona ' + cat + ' Cab', cat: cat, gender: 'cab', teamIds: tids.slice(0, 4) };
+          zones.push(z);
+          tids.slice(0, 4).forEach(id => { const t = teams.find(x => x.id === id); if (t) t.zoneId = z.id; });
+        }
+        const dtids = teams.filter(t => t.cat === cat && t.gender === 'dam').map(t => t.id);
+        if (dtids.length >= 3) {
+          const z = { id: zid++, name: 'Zona ' + cat + ' Dam', cat: cat, gender: 'dam', teamIds: dtids.slice(0, 4) };
+          zones.push(z);
+          dtids.slice(0, 4).forEach(id => { const t = teams.find(x => x.id === id); if (t) t.zoneId = z.id; });
+        }
+      });
+      for (let i = 1; i <= 8; i++) courts.push({ id: 9000 + i, name: 'Cancha ' + i });
+      save(); renderAll();
+      alert('Datos de ejemplo cargados: ' + teams.length + ' parejas, ' + zones.length + ' zonas, ' + courts.length + ' canchas');
+    }
+
     function addTeam() {
       const p1 = document.getElementById('p1').value.trim();
       const p2 = document.getElementById('p2').value.trim();
