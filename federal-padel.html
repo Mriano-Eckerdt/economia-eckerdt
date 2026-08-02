@@ -257,14 +257,16 @@
   </style>
 <base target="_blank">
   <!-- FIREBASE -->
-    </head>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
 <body>
   <div class="container">
     <!-- PANTALLA DE LOGIN -->
     <div id="login-screen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,var(--bg),var(--bg-dark));z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;">
       <div style="width:100%;max-width:420px;">
         <div style="text-align:center;margin-bottom:28px;">
-          <div style="font-size:48px;margin-bottom:12px;"></div>
+          <div style="font-size:48px;margin-bottom:12px;">🏆</div>
           <h1 style="font-size:28px;font-weight:900;color:var(--text);margin-bottom:8px;">Federal Padel</h1>
           <p style="font-size:14px;color:var(--text-secondary);">Ingresá tu clave de acceso</p>
         </div>
@@ -272,21 +274,21 @@
           <div id="login-error" style="display:none;margin-bottom:16px;padding:12px;background:var(--danger-light);color:var(--danger);border-radius:var(--radius-sm);font-size:13px;font-weight:700;text-align:center;"></div>
           <label class="small" style="font-weight:700;margin-bottom:8px;display:block;">Clave de acceso</label>
           <input type="password" class="input" id="login-password" placeholder="Ingresá la clave" style="margin-bottom:16px;" onkeydown="if(event.key==='Enter')doLogin()" />
-          <button class="btn btn-primary" style="width:100%;padding:14px;font-size:16px;" onclick="doLogin()"> Ingresar</button>
-          <button class="btn btn-success" style="width:100%;padding:14px;font-size:16px;margin-top:10px;" onclick="forceAdminLogin()"> Entrar como Admin</button>
-          <button class="btn btn-secondary" style="width:100%;padding:14px;font-size:16px;margin-top:10px;" onclick="loadDemoData(); forceAdminLogin();"> Cargar Ejemplo y Entrar</button>
+          <button class="btn btn-primary" style="width:100%;padding:14px;font-size:16px;" onclick="doLogin()">🔓 Ingresar</button>
+          <button class="btn btn-success" style="width:100%;padding:14px;font-size:16px;margin-top:10px;" onclick="forceAdminLogin()">🔑 Entrar como Admin (reset)</button>
+          <button class="btn btn-secondary" style="width:100%;padding:14px;font-size:16px;margin-top:10px;" onclick="loadDemoData(); forceAdminLogin();">🎲 Cargar Ejemplo y Entrar</button>
           <div id="first-time-msg" style="display:none;margin-top:16px;padding:12px;background:var(--success-light);color:var(--success);border-radius:var(--radius-sm);font-size:13px;text-align:center;">
             <strong>¡Primera vez!</strong><br>
             No hay clave configurada. Dejá el campo vacío y apretá Ingresar para entrar como administrador.
           </div>
         </div>
         <div style="text-align:center;margin-top:20px;font-size:12px;color:var(--text-tertiary);">
-          Federal Padel v1.0  Acceso restringido
+          Federal Padel v1.0 • Acceso restringido
         </div>
       </div>
     </div>
     <header>
-      <h1> Federal Padel</h1>
+      <h1>🏆 Federal Padel</h1>
       <p>Organizá tu campeonato de pádel</p>
       <img src="https://kimi-web-img.moonshot.cn/img/static.vecteezy.com/8c81c1b987fda513fa6acbdf23cfa8c48608747b.jpg" alt="Padel" style="width:100%;max-width:420px;border-radius:12px;margin-top:12px;box-shadow:var(--shadow);border:2px solid var(--border);">
     </header>
@@ -297,16 +299,16 @@
     </div>
 
     <div class="tabs">
-      <button class="tab active" onclick="showTab('teams')"> Equipos</button>
-      <button class="tab" onclick="showTab('courts')"> Canchas</button>
-      <button class="tab" onclick="showTab('zones')"> Zonas</button>
-      <button class="tab" onclick="showTab('groups')"> Grupos</button>
-      <button class="tab" onclick="showTab('standings')"> Posiciones</button>
-      <button class="tab" onclick="showTab('knockout')"> Eliminatorias</button>
-      <button class="tab" onclick="showTab('pending')"> Pendientes</button>
-      <button class="tab" onclick="showTab('paid')"> Pagaron</button>
-      <button class="tab" onclick="showTab('room')"> Torneo</button>
-      <button class="tab" onclick="showTab('admin')"> Admin</button>
+      <button class="tab active" onclick="showTab('teams')">👥 Equipos</button>
+      <button class="tab" onclick="showTab('courts')">🏟️ Canchas</button>
+      <button class="tab" onclick="showTab('zones')">📦 Zonas</button>
+      <button class="tab" onclick="showTab('groups')">⚔️ Grupos</button>
+      <button class="tab" onclick="showTab('standings')">📊 Posiciones</button>
+      <button class="tab" onclick="showTab('knockout')">🏆 Eliminatorias</button>
+      <button class="tab" onclick="showTab('pending')">❌ Pendientes</button>
+      <button class="tab" onclick="showTab('paid')">✅ Pagaron</button>
+      <button class="tab" onclick="showTab('room')">🏟️ Torneo</button>
+      <button class="tab" onclick="showTab('admin')">⚙️ Admin</button>
     </div>
 
     <!-- EQUIPOS -->
@@ -315,8 +317,8 @@
         <div class="card-title">Nueva Pareja</div>
         <div class="grid-2">
           <select class="select" id="gender">
-            <option value="cab"> Caballeros</option>
-            <option value="dam"> Damas</option>
+            <option value="cab">👨 Caballeros</option>
+            <option value="dam">👩 Damas</option>
           </select>
           <select class="select" id="cat">
             <option value="1ra">1ra</option>
@@ -331,12 +333,8 @@
         <input class="input" id="p1" placeholder="Jugador 1" />
         <input class="input" id="p2" placeholder="Jugador 2" />
         <div class="actions">
-          <button class="btn btn-primary" onclick="addTeam()"> Agregar Pareja</button>
-          <button class="btn btn-secondary btn-sm" onclick="clearTeams()"> Limpiar Todo</button>
-          <button class="btn btn-success btn-sm" onclick="loadDemoData()"> Cargar Ejemplo</button>
-        </div>
-        <div class="actions" style="margin-top:8px;">
-          <button class="btn btn-danger" onclick="clearTeams()" style="width:100%;"> BORRAR TODAS LAS PAREJAS</button>
+          <button class="btn btn-primary" onclick="addTeam()">➕ Agregar Pareja</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearTeams()">🗑️ Limpiar Todo</button>
         </div>
       </div>
 
@@ -356,15 +354,15 @@
       </div>
 
       <div class="gender-filter">
-        <button class="gender-btn active-all" onclick="filterGender('all')"> Todos</button>
-        <button class="gender-btn" onclick="filterGender('cab')"> Caballeros</button>
-        <button class="gender-btn" onclick="filterGender('dam')"> Damas</button>
+        <button class="gender-btn active-all" onclick="filterGender('all')">🏆 Todos</button>
+        <button class="gender-btn" onclick="filterGender('cab')">👨 Caballeros</button>
+        <button class="gender-btn" onclick="filterGender('dam')">👩 Damas</button>
       </div>
 
       <div class="filter-tabs">
-        <button class="filter-tab active" onclick="filterTeams('all')"> Todos</button>
-        <button class="filter-tab" onclick="filterTeams('paid')" style="color:var(--success);"> Abonaron</button>
-        <button class="filter-tab" onclick="filterTeams('unpaid')" style="color:var(--warning);"> Pendientes</button>
+        <button class="filter-tab active" onclick="filterTeams('all')">📋 Todos</button>
+        <button class="filter-tab" onclick="filterTeams('paid')" style="color:var(--success);">✅ Abonaron</button>
+        <button class="filter-tab" onclick="filterTeams('unpaid')" style="color:var(--warning);">❌ Pendientes</button>
       </div>
 
       <div class="card">
@@ -376,10 +374,10 @@
     <!-- CANCHAS -->
     <div id="tab-courts" class="section">
       <div class="card">
-        <div class="card-title"> Nueva Cancha</div>
+        <div class="card-title">🏟️ Nueva Cancha</div>
         <input class="input" id="court-name" placeholder="Ej: Cancha 1, Cancha Central, etc." />
         <div class="actions">
-          <button class="btn btn-primary" onclick="addCourt()"> Agregar Cancha</button>
+          <button class="btn btn-primary" onclick="addCourt()">➕ Agregar Cancha</button>
         </div>
       </div>
       <div class="card">
@@ -395,8 +393,8 @@
         <input class="input" id="zone-name" placeholder="Ej: Zona A" />
         <div class="grid-2">
           <select class="select" id="zone-gender">
-            <option value="cab"> Caballeros</option>
-            <option value="dam"> Damas</option>
+            <option value="cab">👨 Caballeros</option>
+            <option value="dam">👩 Damas</option>
           </select>
           <select class="select" id="zone-cat">
             <option value="1ra">1ra</option>
@@ -409,7 +407,7 @@
           </select>
         </div>
         <div class="actions">
-          <button class="btn btn-primary" onclick="addZone()"> Crear Zona</button>
+          <button class="btn btn-primary" onclick="addZone()">📦 Crear Zona</button>
         </div>
       </div>
       <div id="zones-list"></div>
@@ -419,8 +417,8 @@
     <div id="tab-groups" class="section">
       <div class="card">
         <div class="actions">
-          <button class="btn btn-primary" onclick="generateGroupFixture()"> Generar Fixture de Grupos</button>
-          <button class="btn btn-secondary btn-sm" onclick="clearGroupFixture()"> Borrar</button>
+          <button class="btn btn-primary" onclick="generateGroupFixture()">🎲 Generar Fixture de Grupos</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearGroupFixture()">🗑️ Borrar</button>
         </div>
       </div>
       <div id="groups-content"></div>
@@ -435,8 +433,8 @@
     <div id="tab-knockout" class="section">
       <div class="card">
         <div class="actions">
-          <button class="btn btn-primary" onclick="generateKnockout()"> Generar Eliminatorias</button>
-          <button class="btn btn-secondary btn-sm" onclick="clearKnockout()"> Borrar</button>
+          <button class="btn btn-primary" onclick="generateKnockout()">🏆 Generar Eliminatorias</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearKnockout()">🗑️ Borrar</button>
         </div>
         <div id="knockout-info" style="margin-top:8px;"></div>
       </div>
@@ -446,7 +444,7 @@
     <!-- PENDIENTES DE PAGO -->
     <div id="tab-pending" class="section">
       <div class="card">
-        <div class="card-title"> Jugadores Pendientes de Pago</div>
+        <div class="card-title">❌ Jugadores Pendientes de Pago</div>
         <div id="pending-list"></div>
       </div>
     </div>
@@ -454,7 +452,7 @@
     <!-- PAGARON -->
     <div id="tab-paid" class="section">
       <div class="card">
-        <div class="card-title"> Jugadores que Pagaron</div>
+        <div class="card-title">✅ Jugadores que Pagaron</div>
         <div id="paid-list"></div>
       </div>
     </div>
@@ -462,15 +460,19 @@
     <!-- TORNEO (MULTI-DISPOSITIVO) -->
     <div id="tab-room" class="section">
       <div class="card">
-        <div class="card-title"> Torneo Multi-Dispositivo</div>
+        <div class="card-title">🏟️ Torneo Multi-Dispositivo</div>
         <p class="card-subtitle">Conectá todos los teléfonos al mismo torneo para cargar resultados en tiempo real entre varias canchas.</p>
 
         <div id="room-status"></div>
 
+        <div class="alert alert-warning" style="margin-top:12px;">
+          <strong>⚠️ Configuración necesaria:</strong> Para usar la sincronización multi-dispositivo, creá un proyecto en <a href="https://console.firebase.google.com" target="_blank">Firebase</a>, activá Realtime Database, y reemplazá la configuración en el código por la de tu proyecto.
+        </div>
+
         <div style="margin-top:16px;">
           <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;">Crear nuevo torneo</div>
           <div class="actions">
-            <button class="btn btn-primary" onclick="createRoom()"> Crear Torneo</button>
+            <button class="btn btn-primary" onclick="createRoom()">➕ Crear Torneo</button>
           </div>
         </div>
 
@@ -478,13 +480,13 @@
           <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;">Unirse a un torneo existente</div>
           <input class="input" id="room-code-input" placeholder="Ej: ABC123" style="text-transform:uppercase;" maxlength="6" />
           <div class="actions">
-            <button class="btn btn-success" onclick="joinRoom(document.getElementById('room-code-input').value)"> Unirse</button>
-            <button class="btn btn-danger btn-sm" onclick="leaveRoom()"> Salir</button>
+            <button class="btn btn-success" onclick="joinRoom(document.getElementById('room-code-input').value)">🔗 Unirse</button>
+            <button class="btn btn-danger btn-sm" onclick="leaveRoom()">✕ Salir</button>
           </div>
         </div>
 
         <div style="margin-top:20px;padding:14px;background:var(--bg-dark);border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);line-height:1.8;">
-          <strong style="color:var(--text);"> Cómo funciona:</strong><br>
+          <strong style="color:var(--text);">📖 Cómo funciona:</strong><br>
           1. Una persona crea el torneo y obtiene un código<br>
           2. Los demás organizadores se unen con ese código<br>
           3. Todos ven los mismos equipos, zonas y resultados en tiempo real<br>
@@ -497,43 +499,43 @@
     <!-- ADMIN (CONTROL DE ACCESO) -->
     <div id="tab-admin" class="section">
       <div class="card">
-        <div class="card-title"> Panel de Administrador</div>
+        <div class="card-title">🔐 Panel de Administrador</div>
         <p class="card-subtitle">Solo visible para el administrador. Acá podés controlar quién accede a la app.</p>
 
         <div id="admin-only-content">
           <div style="margin-bottom:20px;padding:14px;background:var(--success-light);border-radius:var(--radius-sm);border-left:4px solid var(--success);">
-            <div style="font-size:13px;font-weight:700;color:var(--success);"> Estás logueado como ADMINISTRADOR</div>
+            <div style="font-size:13px;font-weight:700;color:var(--success);">✅ Estás logueado como ADMINISTRADOR</div>
             <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Tenés acceso completo a todas las funciones.</div>
           </div>
 
           <div style="margin-bottom:20px;padding:16px;border:2px solid var(--border);border-radius:var(--radius);background:var(--bg-card);">
-            <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;"> Clave de Administrador</div>
+            <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;">🔑 Clave de Administrador</div>
             <label class="small" style="font-weight:700;margin-bottom:6px;display:block;">Nueva clave (dejá vacío para no cambiar)</label>
             <input type="password" class="input" id="admin-pass-input" placeholder="Nueva clave de admin" />
             <div class="actions" style="margin-top:10px;">
-              <button class="btn btn-primary" onclick="changeAdminPass()"> Guardar Clave Admin</button>
+              <button class="btn btn-primary" onclick="changeAdminPass()">💾 Guardar Clave Admin</button>
             </div>
             <div id="admin-pass-msg" style="margin-top:8px;font-size:12px;font-weight:600;"></div>
           </div>
 
           <div style="margin-bottom:20px;padding:16px;border:2px solid var(--border);border-radius:var(--radius);background:var(--bg-card);">
-            <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;"> Clave de Invitado</div>
+            <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;">🎫 Clave de Invitado</div>
             <label class="small" style="font-weight:700;margin-bottom:6px;display:block;">Clave actual: <span id="current-guest-pass" style="color:var(--accent);">Sin configurar</span></label>
             <input type="password" class="input" id="guest-pass-input" placeholder="Nueva clave de invitado" />
             <div class="actions" style="margin-top:10px;">
-              <button class="btn btn-success" onclick="changeGuestPass()"> Guardar Clave Invitado</button>
-              <button class="btn btn-warning btn-sm" onclick="resetGuestPass()"> Resetear</button>
+              <button class="btn btn-success" onclick="changeGuestPass()">💾 Guardar Clave Invitado</button>
+              <button class="btn btn-warning btn-sm" onclick="resetGuestPass()">🔄 Resetear</button>
             </div>
             <div id="guest-pass-msg" style="margin-top:8px;font-size:12px;font-weight:600;"></div>
             <div style="margin-top:10px;font-size:12px;color:var(--text-secondary);">
-               Los invitados pueden ver y cargar resultados, pero no cambiar claves ni configurar Drive.
+              💡 Los invitados pueden ver y cargar resultados, pero no cambiar claves ni configurar Drive.
             </div>
           </div>
 
           <div style="padding:16px;border:2px solid var(--border);border-radius:var(--radius);background:var(--bg-card);">
-            <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;"> Sesión</div>
+            <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;">🚪 Sesión</div>
             <div class="actions">
-              <button class="btn btn-danger" onclick="logout()"> Cerrar Sesión</button>
+              <button class="btn btn-danger" onclick="logout()">🔒 Cerrar Sesión</button>
             </div>
             <div style="margin-top:10px;font-size:12px;color:var(--text-secondary);">
               Al cerrar sesión volvés a la pantalla de login.
@@ -542,24 +544,24 @@
         </div>
 
         <div id="guest-blocked-msg" style="display:none;margin-top:20px;padding:14px;background:var(--danger-light);border-radius:var(--radius-sm);border-left:4px solid var(--danger);">
-          <div style="font-size:13px;font-weight:700;color:var(--danger);"> Acceso restringido</div>
+          <div style="font-size:13px;font-weight:700;color:var(--danger);">🚫 Acceso restringido</div>
           <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Solo el administrador puede ver este panel.</div>
         </div>
       </div>
 
       <div class="card" id="drive-config-card">
-        <div class="card-title"> Sincronización con Google Drive</div>
+        <div class="card-title">🔗 Sincronización con Google Drive</div>
         <p class="card-subtitle">Conectá la app con Google Sheets para que los jugadores vean resultados, canchas, horarios y sets en tiempo real.</p>
 
         <div class="alert alert-info" style="margin-bottom:14px;">
           <strong>Paso 1:</strong> Descargá el archivo <strong>apps-script-federal-padel.js</strong> y copiá todo el código.<br>
           <strong>Paso 2:</strong> Creá una hoja de Google Sheets nueva.<br>
-          <strong>Paso 3:</strong> Andá a <em>Extensiones  Apps Script</em>.<br>
+          <strong>Paso 3:</strong> Andá a <em>Extensiones → Apps Script</em>.<br>
           <strong>Paso 4:</strong> Borrá el código por defecto y pegá el código descargado.<br>
           <strong>Paso 5:</strong> Guardá (Ctrl+S) y dale nombre "FederalPadel".<br>
-          <strong>Paso 6:</strong> Clic en <em>Implementar  Nuevo implementación</em>.<br>
+          <strong>Paso 6:</strong> Clic en <em>Implementar → Nuevo implementación</em>.<br>
           <strong>Paso 7:</strong> Tipo: <em>Aplicación web</em> | Ejecutar como: <em>Yo</em> | Acceso: <em>Cualquiera</em>.<br>
-          <strong>Paso 8:</strong> Copiá la URL del Web App y pegala acá abajo 
+          <strong>Paso 8:</strong> Copiá la URL del Web App y pegala acá abajo ↓
         </div>
 
         <label class="small" style="font-weight:700;margin-bottom:6px;display:block;">URL del Web App de Google Apps Script</label>
@@ -572,18 +574,18 @@
           <div class="toggle-switch" id="auto-sync-toggle" onclick="toggleAutoSync()"></div>
         </div>
         <div class="actions">
-          <button class="btn btn-primary" onclick="testDriveConnection()"> Probar Conexión</button>
-          <button class="btn btn-success" onclick="syncToDriveManual()"> Sincronizar Ahora</button>
-          <button class="btn btn-secondary btn-sm" onclick="loadFromDrive()"> Cargar desde Drive</button>
+          <button class="btn btn-primary" onclick="testDriveConnection()">🔗 Probar Conexión</button>
+          <button class="btn btn-success" onclick="syncToDriveManual()">📤 Sincronizar Ahora</button>
+          <button class="btn btn-secondary btn-sm" onclick="loadFromDrive()">📥 Cargar desde Drive</button>
         </div>
         <div id="drive-status" style="margin-top:12px;"></div>
       </div>
 
       <div class="card">
-        <div class="card-title"> Compartir con jugadores</div>
+        <div class="card-title">📤 Compartir con jugadores</div>
         <p class="card-subtitle">Una vez sincronizado, compartí el link del Google Sheet con los jugadores. Ellos verán solo las hojas: <strong>Posiciones</strong>, <strong>Fixture</strong> y <strong>Eliminatorias</strong>.</p>
         <div class="alert alert-success">
-           Los jugadores ven: zonas, canchas, horarios, jugadores por pareja y resultado de cada set.
+          ✅ Los jugadores ven: zonas, canchas, horarios, jugadores por pareja y resultado de cada set.
         </div>
       </div>
     </div>
@@ -595,16 +597,6 @@
   </div>
 
   <script>
-    // Firebase dummy (evita errores si no carga)
-    if (typeof firebase === 'undefined') {
-      window.firebase = {
-        apps: [],
-        initializeApp: function() { return {}; },
-        app: function() { return {}; },
-        database: function() { return { ref: function() { return { set: function() {}, on: function() {}, off: function() {} }; } }; }; }
-      };
-    }
-
     // ====== DATA ======
     let teams = JSON.parse(localStorage.getItem('fp_teams') || '[]');
     let zones = JSON.parse(localStorage.getItem('fp_zones') || '[]');
@@ -613,6 +605,44 @@
     let groupResults = JSON.parse(localStorage.getItem('fp_groupResults') || '{}');
     let knockoutMatches = JSON.parse(localStorage.getItem('fp_knockoutMatches') || '[]');
     let knockoutResults = JSON.parse(localStorage.getItem('fp_knockoutResults') || '{}');
+    let activeTournament = localStorage.getItem('fp_activeTournament') || 'all';
+    function getTournaments() {
+      const map = {};
+      zones.forEach(z => {
+        const key = z.cat + '|' + z.gender;
+        if (!map[key]) map[key] = { cat: z.cat, gender: z.gender, label: catFull(z.cat, z.gender), count: 0 };
+        map[key].count += (z.teamIds || []).length;
+      });
+      return Object.values(map).sort((a, b) => a.label.localeCompare(b.label));
+    }
+
+    function setActiveTournament(key) {
+      activeTournament = key;
+      localStorage.setItem('fp_activeTournament', key);
+      renderGroups(); renderStandings(); renderKnockout();
+    }
+
+    function renderTournamentFilter(containerId) {
+      const tournaments = getTournaments();
+      if (tournaments.length <= 1) return '';
+      const buttons = tournaments.map(t => {
+        const key = t.cat + '|' + t.gender;
+        const active = activeTournament === key;
+        return `<button class="filter-tab ${active ? 'active' : ''}" onclick="setActiveTournament('${key}')" style="${active ? '' : 'border-color:var(--border);background:var(--bg);color:var(--text-secondary);'}">${t.label} (${t.count} eq)</button>`;
+      }).join('');
+      const allActive = activeTournament === 'all';
+      return `<div class="filter-tabs" style="margin-bottom:14px;">
+        <button class="filter-tab ${allActive ? 'active' : ''}" onclick="setActiveTournament('all')" style="${allActive ? '' : 'border-color:var(--border);background:var(--bg);color:var(--text-secondary);'}">🏆 Todos</button>
+        ${buttons}
+      </div>`;
+    }
+
+    function matchesTournament(item) {
+      if (activeTournament === 'all') return true;
+      const [cat, gender] = activeTournament.split('|');
+      return item.cat === cat && item.gender === gender;
+    }
+
 
     // ===== SISTEMA DE LOGIN =====
     let adminPassword = localStorage.getItem('fp_adminPass') || '';
@@ -620,33 +650,94 @@
     let currentUserRole = localStorage.getItem('fp_userRole') || '';
 
     function checkLogin() {
+      // Si ya hay sesión activa, entrar directo
       if (currentUserRole) {
         document.getElementById('login-screen').style.display = 'none';
         applyUserRole();
         return;
       }
+      // Primera vez: no hay contraseñas configuradas
       if (!adminPassword && !guestPassword) {
         document.getElementById('first-time-msg').style.display = 'block';
       }
     }
 
     function applyUserRole() {
-      // Ocultar pestaña Admin para invitados
-      const adminTab = document.querySelector('button[onclick="showTab(\\'admin\\')"]');
+      // Ocultar pestaña Config para invitados (solo admin ve Config)
+      const adminTab = document.querySelector('button[onclick="showTab(\'admin\')"]');
       if (adminTab) adminTab.style.display = currentUserRole === 'admin' ? 'inline-block' : 'none';
 
-      // En Torneo: ocultar "Crear Torneo" para invitados
-      const createBtn = document.querySelector('button[onclick="createRoom()"]');
-      if (createBtn) {
-        const parent = createBtn.closest('div');
-        if (parent && currentUserRole === 'guest') parent.style.display = 'none';
+      // Aplicar modo invitado (solo lectura)
+      if (currentUserRole === 'guest') {
+        document.body.classList.add('guest-mode');
+        applyGuestRestrictions();
+      } else {
+        document.body.classList.remove('guest-mode');
+        removeGuestRestrictions();
       }
+    }
 
-      // En Torneo: mostrar mensaje de solo lectura para invitados
-      const roomStatus = document.getElementById('room-status');
-      if (roomStatus && currentUserRole === 'guest') {
-        // Los invitados pueden unirse pero no crear
+    function applyGuestRestrictions() {
+      // INVITADO: puede CARGAR datos nuevos, NO puede MODIFICAR datos existentes
+      // 1. Score inputs: habilitados si están vacíos, deshabilitados si ya tienen valor
+      document.querySelectorAll('.score-input').forEach(el => {
+        const val = el.value;
+        el.disabled = (val !== '' && val !== null && val !== undefined);
+      });
+      // 2. Ocultar botones de eliminar (✕) en listas dinámicas
+      document.querySelectorAll('.team-actions .btn-danger, .team-actions .btn-secondary').forEach(el => el.style.display = 'none');
+      // 3. Ocultar botones de limpiar todo
+      const clearBtn = document.querySelector('button[onclick="clearTeams()"]');
+      if (clearBtn) clearBtn.style.display = 'none';
+      const clearGroupBtn = document.querySelector('button[onclick="clearGroupFixture()"]');
+      if (clearGroupBtn) clearGroupBtn.style.display = 'none';
+      const clearKnockBtn = document.querySelector('button[onclick="clearKnockout()"]');
+      if (clearKnockBtn) clearKnockBtn.style.display = 'none';
+      // 4. Ocultar toggles de pago (solo admin marca pagos)
+      document.querySelectorAll('button[onclick^="togglePlayerPayment"]').forEach(el => el.style.display = 'none');
+      // 5. Ocultar selects de método de pago
+      document.querySelectorAll('.payment-method-select').forEach(el => el.style.display = 'none');
+      // 6. Ocultar botones de admin
+      const adminBtns = [
+        'button[onclick="changeAdminPass()"]',
+        'button[onclick="changeGuestPass()"]',
+        'button[onclick="resetGuestPass()"]'
+      ];
+      adminBtns.forEach(sel => {
+        const btn = document.querySelector(sel);
+        if (btn) btn.style.display = 'none';
+      });
+      // 7. Mostrar banner de modo invitado
+      let banner = document.getElementById('guest-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'guest-banner';
+        banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:var(--warning);color:#422006;padding:10px;text-align:center;font-weight:800;font-size:13px;z-index:9999;border-top:2px solid #ca8a04;';
+        banner.innerHTML = '👁️ Modo Invitado — Podés cargar datos nuevos. No podés modificar lo ya cargado.';
+        document.body.appendChild(banner);
       }
+      banner.style.display = 'block';
+    }
+
+    function removeGuestRestrictions() {
+      document.querySelectorAll('.score-input').forEach(el => el.disabled = false);
+      const showSelectors = [
+        'button[onclick="clearTeams()"]',
+        'button[onclick="clearGroupFixture()"]',
+        'button[onclick="clearKnockout()"]',
+        'button[onclick="changeAdminPass()"]',
+        'button[onclick="changeGuestPass()"]',
+        'button[onclick="resetGuestPass()"]'
+      ];
+      showSelectors.forEach(sel => {
+        const btn = document.querySelector(sel);
+        if (btn) btn.style.display = '';
+      });
+      document.querySelectorAll('.team-actions .btn-danger, .team-actions .btn-secondary').forEach(el => el.style.display = '');
+      document.querySelectorAll('button[onclick^="togglePlayerPayment"]').forEach(el => el.style.display = '');
+      document.querySelectorAll('.payment-method-select').forEach(el => el.style.display = '');
+      const banner = document.getElementById('guest-banner');
+      if (banner) banner.style.display = 'none';
     }
 
     function forceAdminLogin() {
@@ -687,7 +778,7 @@
         applyUserRole();
         return;
       }
-      errorEl.textContent = ' Clave incorrecta. No tenés acceso.';
+      errorEl.textContent = '❌ Clave incorrecta. No tenés acceso.';
       errorEl.style.display = 'block';
     }
 
@@ -725,13 +816,25 @@
 
     function initFirebase() {
       try {
-        if (typeof firebase === 'undefined' || !firebase.apps) { firebaseDb = null; renderRoomStatus(); return; }
-        if (!firebase.apps.length) firebaseApp = firebase.initializeApp(firebaseConfig);
-        else firebaseApp = firebase.app();
+        if (!firebase || !firebase.apps) {
+          console.log('Firebase no disponible (modo offline)');
+          renderRoomStatus();
+          return;
+        }
+        if (!firebase.apps.length) {
+          firebaseApp = firebase.initializeApp(firebaseConfig);
+        } else {
+          firebaseApp = firebase.app();
+        }
         firebaseDb = firebase.database();
+        console.log('Firebase inicializado');
         if (currentRoom) joinRoom(currentRoom);
         renderRoomStatus();
-      } catch(e) { firebaseDb = null; renderRoomStatus(); }
+      } catch(e) {
+        console.error('Firebase error:', e);
+        firebaseDb = null;
+        renderRoomStatus();
+      }
     }
 
     function generateRoomCode() {
@@ -745,20 +848,27 @@
       saveToFirebase();
       listenToFirebase();
       renderRoomStatus();
-      alert(' Torneo creado! Código: ' + code + '\nCompartilo con los organizadores.');
+      alert('🏟️ Torneo creado! Código: ' + code + '\nCompartilo con los organizadores.');
     }
 
     function joinRoom(code) {
-      if (!code || code.length < 4) { alert('Codigo invalido'); return; }
+      if (!code || code.length < 4) { alert('Código inválido'); return; }
       currentRoom = code.toUpperCase().trim();
       localStorage.setItem('fp_room', currentRoom);
-      if (firebaseDb) listenToFirebase();
+      if (firebaseDb) {
+        listenToFirebase();
+      } else {
+        alert('⚠️ Modo offline: no hay sincronización en tiempo real.
+Configurá Firebase para usar esta función.');
+      }
       renderRoomStatus();
-      alert('Unido al torneo: ' + currentRoom);
+      alert('✅ Unido al torneo: ' + currentRoom);
     }
 
     function leaveRoom() {
-      if (firebaseDb && currentRoom) { try { firebaseDb.ref('tournaments/' + currentRoom).off(); } catch(e) {} }
+      if (firebaseDb && currentRoom) {
+        firebaseDb.ref('tournaments/' + currentRoom).off();
+      }
       currentRoom = '';
       localStorage.removeItem('fp_room');
       renderRoomStatus();
@@ -766,29 +876,42 @@
 
     function saveToFirebase() {
       if (!firebaseDb || !currentRoom || isSyncingFromFirebase) return;
+      const data = {
+        teams, zones, courts, groupMatches, groupResults,
+        knockoutMatches, knockoutResults,
+        updatedAt: Date.now(),
+        updatedBy: 'organizer'
+      };
       try {
-        var data = { teams: teams, zones: zones, courts: courts, groupMatches: groupMatches, groupResults: groupResults, knockoutMatches: knockoutMatches, knockoutResults: knockoutResults, updatedAt: Date.now(), updatedBy: 'organizer' };
-        firebaseDb.ref('tournaments/' + currentRoom).set(data).then(function() { console.log('Firebase sync OK'); }).catch(function(e) { console.error('Firebase sync error:', e); });
-      } catch(e) {}
+        firebaseDb.ref('tournaments/' + currentRoom).set(data)
+          .then(() => console.log('Firebase sync OK'))
+          .catch(e => console.error('Firebase sync error:', e));
+      } catch(e) {
+        console.error('Firebase save error:', e);
+      }
     }
 
     function listenToFirebase() {
       if (!firebaseDb || !currentRoom) return;
-      firebaseDb.ref('tournaments/' + currentRoom).on('value', snapshot => {
-        const data = snapshot.val();
-        if (!data) return;
-        isSyncingFromFirebase = true;
-        if (data.teams) teams = data.teams;
-        if (data.zones) zones = data.zones;
-        if (data.courts) courts = data.courts;
-        if (data.groupMatches) groupMatches = data.groupMatches;
-        if (data.groupResults) groupResults = data.groupResults;
-        if (data.knockoutMatches) knockoutMatches = data.knockoutMatches;
-        if (data.knockoutResults) knockoutResults = data.knockoutResults;
-        saveLocal();
-        renderAll();
-        setTimeout(() => { isSyncingFromFirebase = false; }, 500);
-      });
+      try {
+        firebaseDb.ref('tournaments/' + currentRoom).on('value', snapshot => {
+          const data = snapshot.val();
+          if (!data) return;
+          isSyncingFromFirebase = true;
+          if (data.teams) teams = data.teams;
+          if (data.zones) zones = data.zones;
+          if (data.courts) courts = data.courts;
+          if (data.groupMatches) groupMatches = data.groupMatches;
+          if (data.groupResults) groupResults = data.groupResults;
+          if (data.knockoutMatches) knockoutMatches = data.knockoutMatches;
+          if (data.knockoutResults) knockoutResults = data.knockoutResults;
+          saveLocal();
+          renderAll();
+          setTimeout(() => { isSyncingFromFirebase = false; }, 500);
+        });
+      } catch(e) {
+        console.error('Firebase listen error:', e);
+      }
     }
 
     function saveLocal() {
@@ -805,28 +928,28 @@
       const el = document.getElementById('room-status');
       if (!el) return;
       if (currentRoom) {
-        el.innerHTML = '<div class="alert alert-success"> Conectado al torneo: <strong>' + currentRoom + '</strong> (sincronización en tiempo real activa)</div>';
+        el.innerHTML = '<div class="alert alert-success">🏟️ Conectado al torneo: <strong>' + currentRoom + '</strong> (sincronización en tiempo real activa)</div>';
       } else {
-        el.innerHTML = '<div class="alert alert-info"> No estás conectado a ningún torneo. Creá uno o unite con un código.</div>';
+        el.innerHTML = '<div class="alert alert-info">⚠️ No estás conectado a ningún torneo. Creá uno o unite con un código.</div>';
       }
     }
 
     function changeAdminPass() {
       const newPass = document.getElementById('admin-pass-input').value;
-      if (!newPass) { document.getElementById('admin-pass-msg').innerHTML = '<span style="color:var(--warning);"> Dejá vacío para mantener la actual</span>'; return; }
+      if (!newPass) { document.getElementById('admin-pass-msg').innerHTML = '<span style="color:var(--warning);">⚠️ Dejá vacío para mantener la actual</span>'; return; }
       setAdminPassword(newPass);
       document.getElementById('admin-pass-input').value = '';
-      document.getElementById('admin-pass-msg').innerHTML = '<span style="color:var(--success);"> Clave de admin actualizada</span>';
+      document.getElementById('admin-pass-msg').innerHTML = '<span style="color:var(--success);">✅ Clave de admin actualizada</span>';
       setTimeout(() => document.getElementById('admin-pass-msg').innerHTML = '', 3000);
     }
 
     function changeGuestPass() {
       const newPass = document.getElementById('guest-pass-input').value;
-      if (!newPass) { document.getElementById('guest-pass-msg').innerHTML = '<span style="color:var(--warning);"> Ingresá una clave</span>'; return; }
+      if (!newPass) { document.getElementById('guest-pass-msg').innerHTML = '<span style="color:var(--warning);">⚠️ Ingresá una clave</span>'; return; }
       setGuestPassword(newPass);
       document.getElementById('guest-pass-input').value = '';
-      document.getElementById('current-guest-pass').textContent = '';
-      document.getElementById('guest-pass-msg').innerHTML = '<span style="color:var(--success);"> Clave de invitado actualizada</span>';
+      document.getElementById('current-guest-pass').textContent = '●●●●●●';
+      document.getElementById('guest-pass-msg').innerHTML = '<span style="color:var(--success);">✅ Clave de invitado actualizada</span>';
       setTimeout(() => document.getElementById('guest-pass-msg').innerHTML = '', 3000);
     }
 
@@ -834,7 +957,7 @@
       if (!confirm('¿Eliminar la clave de invitado? Los invitados no podrán acceder.')) return;
       setGuestPassword('');
       document.getElementById('current-guest-pass').textContent = 'Sin configurar';
-      document.getElementById('guest-pass-msg').innerHTML = '<span style="color:var(--success);"> Clave de invitado eliminada</span>';
+      document.getElementById('guest-pass-msg').innerHTML = '<span style="color:var(--success);">✅ Clave de invitado eliminada</span>';
       setTimeout(() => document.getElementById('guest-pass-msg').innerHTML = '', 3000);
     }
 
@@ -847,27 +970,13 @@
         document.getElementById('admin-only-content').style.display = 'block';
         document.getElementById('guest-blocked-msg').style.display = 'none';
         document.getElementById('drive-config-card').style.display = 'block';
-        document.getElementById('current-guest-pass').textContent = guestPassword ? '' : 'Sin configurar';
-      }
-    }
-
-    
-    function renderAdminPanel() {
-      if (currentUserRole !== 'admin') {
-        document.getElementById('admin-only-content').style.display = 'none';
-        document.getElementById('guest-blocked-msg').style.display = 'block';
-        if (document.getElementById('drive-config-card')) document.getElementById('drive-config-card').style.display = 'none';
-      } else {
-        document.getElementById('admin-only-content').style.display = 'block';
-        document.getElementById('guest-blocked-msg').style.display = 'none';
-        if (document.getElementById('drive-config-card')) document.getElementById('drive-config-card').style.display = 'block';
-        var gp = document.getElementById('current-guest-pass');
-        if (gp) gp.textContent = guestPassword ? '******' : 'Sin configurar';
+        document.getElementById('current-guest-pass').textContent = guestPassword ? '●●●●●●' : 'Sin configurar';
       }
     }
 
     function renderAll() {
       renderTeams(); renderZones(); renderCourts(); renderGroups(); renderStandings(); renderKnockout(); renderPending(); renderPaid();
+      if (currentUserRole === 'guest') applyGuestRestrictions();
     }
     let driveUrl = localStorage.getItem('fp_driveUrl') || '';
     let autoSync = localStorage.getItem('fp_autoSync') === 'true';
@@ -876,7 +985,7 @@
 
     const catLabels = { '1ra': '1ra', '2da': '2da', '3ra': '3ra', '4ta': '4ta', '5ta': '5ta', '6ta': '6ta', '7ma': '7ma' };
     const genderLabels = { 'cab': 'Caballeros', 'dam': 'Damas' };
-    const paymentMethods = { 'efectivo': ' Efectivo', 'transferencia': ' Transferencia', 'mercadopago': ' Mercado Pago' };
+    const paymentMethods = { 'efectivo': '💵 Efectivo', 'transferencia': '🏦 Transferencia', 'mercadopago': '📱 Mercado Pago' };
 
     function catFull(cat, gender) {
       return catLabels[cat] + ' ' + genderLabels[gender];
@@ -890,6 +999,7 @@
       localStorage.setItem('fp_groupResults', JSON.stringify(groupResults));
       localStorage.setItem('fp_knockoutMatches', JSON.stringify(knockoutMatches));
       localStorage.setItem('fp_knockoutResults', JSON.stringify(knockoutResults));
+      localStorage.setItem('fp_activeTournament', activeTournament);
       saveToFirebase();
       if (autoSync && driveUrl) debouncedSync();
     }
@@ -911,64 +1021,10 @@
       if (name === 'courts') renderCourts();
       if (name === 'room') renderRoomStatus();
       if (name === 'admin') { renderConfig(); renderAdminPanel(); }
+      if (currentUserRole === 'guest') applyGuestRestrictions();
     }
 
     // ====== EQUIPOS ======
-    
-    function loadDemoData() {
-      if (teams.length > 0) return;
-      const cabCats = ['1ra','2da','3ra','4ta','5ta','6ta','7ma'];
-      const cabNames = [
-        ['Gonzalo Perez','Martin Lopez'],['Diego Fernandez','Juan Rodriguez'],['Carlos Gomez','Andres Silva'],['Lucas Martinez','Pablo Torres'],
-        ['Mariano Eckerdt','Federico Ruiz'],['Santiago Acosta','Nicolas Benitez'],['Bruno Castillo','Tomas Diaz'],['Mateo Sosa','Joaquin Vega'],
-        ['Leandro Morales','Emiliano Rojas'],['Agustin Herrera','Maximiliano Luna'],['Facundo Medina','Cristian Ortiz'],['Ramiro Peralta','Ezequiel Ramos'],
-        ['Julio Cesar','Roberto Carlos'],['Miguel Angel','Gabriel Santos'],['Ricardo Flores','Alejandro Vargas'],['Daniel Castro','Hernan Guzman'],
-        ['Fernando Reyes','Oscar Navarro'],['Alberto Pena','Mario Ibarra'],['Jorge Campos','Raul Espinoza'],['Eduardo Rivas','Sergio Maldonado'],
-        ['Hugo Salazar','Victor Palacios'],['Luis Arce','Pedro Miranda'],['Antonio Leon','Francisco Duarte'],['Javier Mendoza','Rafael Cordoba'],
-        ['Domingo Figueroa','Ernesto Villanueva'],['Guillermo Bravo','Ignacio Fuentes'],['Rodrigo Gallardo','Samuel Aguirre'],['Patricio Bravo','Ulises Camacho']
-      ];
-      let tid = 1000;
-      cabCats.forEach((cat, ci) => {
-        for (let i = 0; i < 4; i++) {
-          const [p1, p2] = cabNames[ci * 4 + i];
-          teams.push({ id: tid++, p1: p1, p2: p2, cat: cat, gender: 'cab', name: p1 + ' / ' + p2, zoneId: null, p1Paid: i < 3, p1Method: i < 3 ? 'efectivo' : '', p2Paid: i < 3, p2Method: i < 3 ? 'efectivo' : '' });
-        }
-      });
-      const damNames = [
-        ['Maria Gonzalez','Laura Sanchez'],['Ana Martinez','Carmen Ruiz'],['Paula Torres','Sofia Diaz'],['Valentina Romero','Julieta Herrera'],
-        ['Florencia Luna','Victoria Castillo'],['Agustina Medina','Milagros Ortiz'],['Morena Peralta','Rocio Ramos'],['Belen Sosa','Camila Vega'],
-        ['Daniela Flores','Natalia Vargas'],['Luciana Castro','Mariana Guzman'],['Romina Reyes','Sol Navarro'],['Tatiana Pena','Yamila Ibarra'],
-        ['Abigail Campos','Brisa Espinoza'],['Celeste Rivas','Delfina Maldonado'],['Estefania Salazar','Gisela Palacios'],['Ivana Arce','Karen Miranda'],
-        ['Ludmila Leon','Magali Duarte'],['Noelia Mendoza','Oriana Cordoba'],['Priscila Figueroa','Quimey Villanueva'],['Romina Bravo','Selene Fuentes'],
-        ['Thalia Gallardo','Ursula Aguirre'],['Vanesa Bravo','Wanda Camacho'],['Ximena Diaz','Yanina Lopez'],['Zoe Martinez','Abril Ruiz'],
-        ['Carla Herrera','Elena Luna'],['Ines Medina','Julia Ortiz'],['Karla Peralta','Lia Ramos'],['Mora Sosa','Nina Vega']
-      ];
-      cabCats.forEach((cat, ci) => {
-        for (let i = 0; i < 4; i++) {
-          const [p1, p2] = damNames[ci * 4 + i];
-          teams.push({ id: tid++, p1: p1, p2: p2, cat: cat, gender: 'dam', name: p1 + ' / ' + p2, zoneId: null, p1Paid: i < 3, p1Method: i < 3 ? 'efectivo' : '', p2Paid: i < 3, p2Method: i < 3 ? 'efectivo' : '' });
-        }
-      });
-      let zid = 5001;
-      cabCats.forEach(cat => {
-        const tids = teams.filter(t => t.cat === cat && t.gender === 'cab').map(t => t.id);
-        if (tids.length >= 3) {
-          const z = { id: zid++, name: 'Zona ' + cat + ' Cab', cat: cat, gender: 'cab', teamIds: tids.slice(0, 4) };
-          zones.push(z);
-          tids.slice(0, 4).forEach(id => { const t = teams.find(x => x.id === id); if (t) t.zoneId = z.id; });
-        }
-        const dtids = teams.filter(t => t.cat === cat && t.gender === 'dam').map(t => t.id);
-        if (dtids.length >= 3) {
-          const z = { id: zid++, name: 'Zona ' + cat + ' Dam', cat: cat, gender: 'dam', teamIds: dtids.slice(0, 4) };
-          zones.push(z);
-          dtids.slice(0, 4).forEach(id => { const t = teams.find(x => x.id === id); if (t) t.zoneId = z.id; });
-        }
-      });
-      for (let i = 1; i <= 8; i++) courts.push({ id: 9000 + i, name: 'Cancha ' + i });
-      save(); renderAll();
-      alert('Datos de ejemplo cargados: ' + teams.length + ' parejas, ' + zones.length + ' zonas, ' + courts.length + ' canchas');
-    }
-
     function addTeam() {
       const p1 = document.getElementById('p1').value.trim();
       const p2 = document.getElementById('p2').value.trim();
@@ -1007,6 +1063,7 @@
     }
 
     function togglePlayerPayment(teamId, playerNum) {
+      if (currentUserRole === 'guest') { alert('🚫 Solo el administrador puede modificar pagos.'); return; }
       const t = teams.find(x => x.id == teamId);
       if (!t) return;
       if (playerNum === 1) t.p1Paid = !t.p1Paid;
@@ -1015,6 +1072,7 @@
     }
 
     function setPlayerMethod(teamId, playerNum, method) {
+      if (currentUserRole === 'guest') return;
       const t = teams.find(x => x.id == teamId);
       if (!t) return;
       if (playerNum === 1) { t.p1Method = method; if (method) t.p1Paid = true; }
@@ -1055,8 +1113,8 @@
         `<option value="${m}" ${method === m ? 'selected' : ''}>${paymentMethods[m]}</option>`
       ).join('');
       const badge = paid
-        ? `<span class="badge badge-paid"> Pagó</span>`
-        : `<span class="badge badge-unpaid"> Pendiente</span>`;
+        ? `<span class="badge badge-paid">✅ Pagó</span>`
+        : `<span class="badge badge-unpaid">❌ Pendiente</span>`;
       const methodSelect = paid
         ? `<select class="payment-method-select" onchange="setPlayerMethod(${teamId},${playerNum},this.value)">
              <option value="">Método...</option>${methodOptions}
@@ -1066,7 +1124,7 @@
         ${badge}
         <span>${name}</span>
         <button class="btn btn-sm ${paid ? 'btn-warning' : 'btn-success'}" onclick="togglePlayerPayment(${teamId},${playerNum})" style="padding:4px 10px;font-size:11px;">
-          ${paid ? ' Pendiente' : ' Pagó'}
+          ${paid ? '❌ Pendiente' : '✅ Pagó'}
         </button>
         ${methodSelect}
       </div>`;
@@ -1090,19 +1148,19 @@
       list.innerHTML = filtered.map(t => {
         const z = zones.find(zn => zn.id === t.zoneId);
         const genderBadge = t.gender === 'dam'
-          ? '<span class="badge badge-dam"> Damas</span>'
-          : '<span class="badge badge-cab"> Caballeros</span>';
+          ? '<span class="badge badge-dam">👩 Damas</span>'
+          : '<span class="badge badge-cab">👨 Caballeros</span>';
         return `<div class="team-row">
           <div class="team-info">
             <span class="team-name">${t.name}</span>
-            <span class="team-players">${catFull(t.cat, t.gender)} ${z ? ' ' + z.name : ' Sin zona'}</span>
+            <span class="team-players">${catFull(t.cat, t.gender)} ${z ? '• ' + z.name : '• Sin zona'}</span>
             ${renderPlayerPayment(t.id, 1, t.p1, t.p1Paid, t.p1Method)}
             ${renderPlayerPayment(t.id, 2, t.p2, t.p2Paid, t.p2Method)}
           </div>
           <div class="team-actions">
             <span class="badge badge-${t.cat}">${catLabels[t.cat]}</span>
             ${genderBadge}
-            <button class="btn btn-danger btn-sm" onclick="removeTeam(${t.id})"></button>
+            <button class="btn btn-danger btn-sm" onclick="removeTeam(${t.id})">✕</button>
           </div>
         </div>`;
       }).join('');
@@ -1131,10 +1189,10 @@
       if (!courts.length) { list.innerHTML = '<div class="empty">No hay canchas registradas</div>'; return; }
       list.innerHTML = courts.map(c => `<div class="team-row">
         <div class="team-info">
-          <span class="team-name"> ${c.name}</span>
+          <span class="team-name">🏟️ ${c.name}</span>
         </div>
         <div class="team-actions">
-          <button class="btn btn-danger btn-sm" onclick="removeCourt(${c.id})"></button>
+          <button class="btn btn-danger btn-sm" onclick="removeCourt(${c.id})">✕</button>
         </div>
       </div>`).join('');
     }
@@ -1146,7 +1204,7 @@
         ? `saveKnockoutCourt(${matchId},this.value)`
         : `saveGroupCourt(${matchId},this.value)`;
       return `<select class="payment-method-select" style="min-width:120px;" onchange="${onchange}">
-        <option value=""> Cancha...</option>
+        <option value="">🏟️ Cancha...</option>
         ${courts.map(c => `<option value="${c.id}" ${selected == c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
       </select>`;
     }
@@ -1159,6 +1217,7 @@
       return `<input type="time" class="score-input" style="width:90px;padding:6px 8px;font-size:13px;" value="${value}" onchange="${onchange}" />`;
     }
     function saveGroupCourt(mid, courtId) {
+      if (currentUserRole === 'guest') return;
       const m = groupMatches.find(x => x.id == mid);
       if (!m) return;
       m.courtId = courtId ? parseFloat(courtId) : null;
@@ -1172,6 +1231,7 @@
       save();
     }
     function saveKnockoutCourt(mid, courtId) {
+      if (currentUserRole === 'guest') return;
       const m = knockoutMatches.find(x => x.id == mid);
       if (!m) return;
       m.courtId = courtId ? parseFloat(courtId) : null;
@@ -1242,18 +1302,18 @@
         const zoneTeams = (z.teamIds || []).map(tid => teams.find(t => t.id == tid)).filter(Boolean);
         const valid = zoneTeams.length >= 3 && zoneTeams.length <= 4;
         const genderBadge = z.gender === 'dam'
-          ? '<span class="badge badge-dam"> Damas</span>'
-          : '<span class="badge badge-cab"> Caballeros</span>';
+          ? '<span class="badge badge-dam">👩 Damas</span>'
+          : '<span class="badge badge-cab">👨 Caballeros</span>';
         const key = z.gender + '-' + z.cat;
         return `<div class="card">
           <div class="zone-header">
             <div>
               <div class="zone-title">${z.name}</div>
-              <div class="zone-sub">${catFull(z.cat, z.gender)}  ${zoneTeams.length} equipos ${valid ? '' : '(necesita 3 o 4)'}</div>
+              <div class="zone-sub">${catFull(z.cat, z.gender)} • ${zoneTeams.length} equipos ${valid ? '✅' : '(necesita 3 o 4)'}</div>
             </div>
             <div style="display:flex;gap:6px;align-items:center;">
               ${genderBadge}
-              <button class="btn btn-danger btn-sm" onclick="removeZone(${z.id})"></button>
+              <button class="btn btn-danger btn-sm" onclick="removeZone(${z.id})">✕</button>
             </div>
           </div>
           <div style="margin-bottom:8px;">
@@ -1266,7 +1326,7 @@
           </div>
           ${(unassigned[key] && unassigned[key].length) ? `
             <select class="select" style="margin-bottom:0;" onchange="if(this.value)assignTeamToZone(this.value,${z.id});this.value='';">
-              <option value=""> Agregar equipo a esta zona...</option>
+              <option value="">➕ Agregar equipo a esta zona...</option>
               ${unassigned[key].map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
             </select>
           ` : ''}
@@ -1298,6 +1358,9 @@
       renderGroups();
     }
     function saveGroupResult(mid, field, val) {
+      const existing = groupResults[mid] && groupResults[mid][field];
+      const hasValue = (existing !== undefined && existing !== '' && existing !== null);
+      if (currentUserRole === 'guest' && hasValue) { alert('🚫 Solo el administrador puede modificar resultados ya cargados.'); return; }
       if (!groupResults[mid]) groupResults[mid] = {};
       groupResults[mid][field] = parseInt(val) || 0;
       save();
@@ -1309,15 +1372,18 @@
     }
     function renderGroups() {
       const cont = document.getElementById('groups-content');
-      if (!groupMatches.length) { cont.innerHTML = '<div class="empty">Generá el fixture de grupos primero</div>'; return; }
-      cont.innerHTML = zones.map(z => {
+      const filterHtml = renderTournamentFilter('groups-filter');
+      if (!groupMatches.length) { cont.innerHTML = filterHtml + '<div class="empty">Generá el fixture de grupos primero</div>'; return; }
+      const filteredZones = zones.filter(z => matchesTournament(z));
+      if (!filteredZones.length) { cont.innerHTML = filterHtml + '<div class="empty">No hay zonas en esta categoría</div>'; return; }
+      cont.innerHTML = filterHtml + filteredZones.map(z => {
         const zMatches = groupMatches.filter(m => m.zoneId == z.id);
         if (!zMatches.length) return '';
         return `<div class="card">
           <div class="zone-header">
             <div>
               <div class="zone-title">${z.name}</div>
-              <div class="zone-sub">${catFull(z.cat, z.gender)}  ${zMatches.length} partidos</div>
+              <div class="zone-sub">${catFull(z.cat, z.gender)} • ${zMatches.length} partidos</div>
             </div>
           </div>
           ${zMatches.map((m, i) => {
@@ -1401,20 +1467,22 @@
     }
     function renderStandings() {
       const cont = document.getElementById('standings-content');
-      if (!zones.length) { cont.innerHTML = '<div class="empty">No hay zonas</div>'; return; }
+      const filterHtml = renderTournamentFilter('standings-filter');
+      const filteredZones = zones.filter(z => matchesTournament(z));
+      if (!filteredZones.length) { cont.innerHTML = filterHtml + '<div class="empty">No hay zonas en esta categoría</div>'; return; }
       const legend = `<div style="margin-bottom:14px;padding:14px 18px;border:2px solid var(--border);border-radius:var(--radius);background:var(--bg-card);font-size:13px;color:var(--text-secondary);font-weight:600;line-height:2;box-shadow:var(--shadow);">
-        <strong style="color:var(--text);"> Leyenda de la tabla:</strong>
-        <span style="margin-left:8px;"><strong style="color:var(--accent);">PJ</strong> = Partidos Jugados</span> 
-        <span style="margin-left:4px;"><strong style="color:var(--accent);">PG</strong> = Partidos Ganados</span> 
-        <span style="margin-left:4px;"><strong style="color:var(--accent);">PP</strong> = Partidos Perdidos</span> 
-        <span style="margin-left:4px;"><strong style="color:var(--accent);">SF</strong> = Sets a Favor</span> 
-        <span style="margin-left:4px;"><strong style="color:var(--accent);">SC</strong> = Sets en Contra</span> 
-        <span style="margin-left:4px;"><strong style="color:var(--accent);">PF</strong> = Games a Favor</span> 
-        <span style="margin-left:4px;"><strong style="color:var(--accent);">PC</strong> = Games en Contra</span> 
-        <span style="margin-left:4px;"><strong style="color:var(--accent);">Dif</strong> = Diferencia de Games</span> 
+        <strong style="color:var(--text);">📖 Leyenda de la tabla:</strong>
+        <span style="margin-left:8px;"><strong style="color:var(--accent);">PJ</strong> = Partidos Jugados</span> •
+        <span style="margin-left:4px;"><strong style="color:var(--accent);">PG</strong> = Partidos Ganados</span> •
+        <span style="margin-left:4px;"><strong style="color:var(--accent);">PP</strong> = Partidos Perdidos</span> •
+        <span style="margin-left:4px;"><strong style="color:var(--accent);">SF</strong> = Sets a Favor</span> •
+        <span style="margin-left:4px;"><strong style="color:var(--accent);">SC</strong> = Sets en Contra</span> •
+        <span style="margin-left:4px;"><strong style="color:var(--accent);">PF</strong> = Games a Favor</span> •
+        <span style="margin-left:4px;"><strong style="color:var(--accent);">PC</strong> = Games en Contra</span> •
+        <span style="margin-left:4px;"><strong style="color:var(--accent);">Dif</strong> = Diferencia de Games</span> •
         <span style="margin-left:4px;"><strong style="color:var(--accent);">Pts</strong> = Puntos (3 por ganar, 1 por empate)</span>
       </div>`;
-      cont.innerHTML = legend + zones.map(z => {
+      cont.innerHTML = filterHtml + legend + filteredZones.map(z => {
         const standings = calcZoneStandings(z.id);
         if (!standings.length) return '';
         return `<div class="card">
@@ -1433,7 +1501,7 @@
                   const posClass = i === 0 ? 'pos-1' : i === 1 ? 'pos-2' : i === 2 ? 'pos-3' : '';
                   const dif = s.gf - s.gc;
                   return `<tr>
-                    <td class="${posClass}" style="width:32px;">${i+1}</td>
+                    <td class="${posClass}" style="width:32px;">${i+1}°</td>
                     <td><div style="font-weight:800;font-size:13px;">${t ? t.name : '???'}</div></td>
                     <td>${s.pj}</td><td>${s.pg}</td><td>${s.pp}</td>
                     <td>${s.sf}</td><td>${s.sc}</td>
@@ -1471,78 +1539,92 @@
         return;
       }
       const qualifiers = getZoneQualifiers();
-      const zoneList = zones.slice();
-      const allQ = [];
-      zoneList.forEach(z => {
+      // Separar qualifiers por categoría + género
+      const byTournament = {};
+      zones.forEach(z => {
         const q = qualifiers[z.id] || [];
+        const key = z.cat + '|' + z.gender;
+        if (!byTournament[key]) byTournament[key] = [];
         q.forEach((tid, idx) => {
-          allQ.push({ tid, zoneId: z.id, pos: idx + 1, zoneName: z.name, cat: z.cat, gender: z.gender });
+          byTournament[key].push({ tid, zoneId: z.id, pos: idx + 1, zoneName: z.name, cat: z.cat, gender: z.gender });
         });
       });
-      const total = allQ.length;
-      if (total < 2) { alert('No hay suficientes equipos clasificados'); return; }
+
+      let totalMatches = 0;
+      let totalRounds = 0;
       knockoutMatches = [];
       let matchId = Date.now();
-      const zonesWith1st = allQ.filter(q => q.pos === 1);
-      const zonesWith2nd = allQ.filter(q => q.pos === 2);
-      const zonesWith3rd = allQ.filter(q => q.pos === 3);
-      const used = new Set();
-      const firstRound = [];
-      for (let i = 0; i < zonesWith1st.length; i++) {
-        const a = zonesWith1st[i];
-        const b = zonesWith2nd.find(q => q.zoneId !== a.zoneId && q.gender === a.gender && !used.has(q.tid));
-        if (b) {
-          firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 1 vs ' + b.zoneName + ' 2', courtId: null, courtName: null, time: null });
-          used.add(a.tid); used.add(b.tid);
-        }
-      }
-      zonesWith1st.forEach(a => {
-        if (!used.has(a.tid)) {
-          const b = zonesWith3rd.find(q => q.zoneId !== a.zoneId && q.gender === a.gender && !used.has(q.tid));
+
+      Object.keys(byTournament).forEach(key => {
+        const allQ = byTournament[key];
+        if (allQ.length < 2) return;
+
+        const zonesWith1st = allQ.filter(q => q.pos === 1);
+        const zonesWith2nd = allQ.filter(q => q.pos === 2);
+        const zonesWith3rd = allQ.filter(q => q.pos === 3);
+        const used = new Set();
+        const firstRound = [];
+
+        for (let i = 0; i < zonesWith1st.length; i++) {
+          const a = zonesWith1st[i];
+          const b = zonesWith2nd.find(q => q.zoneId !== a.zoneId && !used.has(q.tid));
           if (b) {
-            firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 1 vs ' + b.zoneName + ' 3', courtId: null, courtName: null, time: null });
+            firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 1° vs ' + b.zoneName + ' 2°', courtId: null, courtName: null, time: null });
             used.add(a.tid); used.add(b.tid);
           }
         }
-      });
-      zonesWith2nd.forEach(a => {
-        if (!used.has(a.tid)) {
-          const b = zonesWith3rd.find(q => q.zoneId !== a.zoneId && q.gender === a.gender && !used.has(q.tid));
-          if (b) {
-            firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 2 vs ' + b.zoneName + ' 3', courtId: null, courtName: null, time: null });
-            used.add(a.tid); used.add(b.tid);
+        zonesWith1st.forEach(a => {
+          if (!used.has(a.tid)) {
+            const b = zonesWith3rd.find(q => q.zoneId !== a.zoneId && !used.has(q.tid));
+            if (b) {
+              firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 1° vs ' + b.zoneName + ' 3°', courtId: null, courtName: null, time: null });
+              used.add(a.tid); used.add(b.tid);
+            }
           }
+        });
+        zonesWith2nd.forEach(a => {
+          if (!used.has(a.tid)) {
+            const b = zonesWith3rd.find(q => q.zoneId !== a.zoneId && !used.has(q.tid));
+            if (b) {
+              firstRound.push({ id: matchId++, t1: a.tid, t2: b.tid, round: 1, cat: a.cat, gender: a.gender, label: a.zoneName + ' 2° vs ' + b.zoneName + ' 3°', courtId: null, courtName: null, time: null });
+              used.add(a.tid); used.add(b.tid);
+            }
+          }
+        });
+        allQ.forEach(q => {
+          if (!used.has(q.tid)) {
+            firstRound.push({ id: matchId++, t1: q.tid, t2: null, round: 1, cat: q.cat, gender: q.gender, label: q.zoneName + ' ' + q.pos + '° (bye)', bye: true, courtId: null, courtName: null, time: null });
+            used.add(q.tid);
+          }
+        });
+
+        let currentRound = firstRound;
+        let allMatches = [...firstRound];
+        let roundNum = 2;
+        while (currentRound.length > 1) {
+          const nextRound = [];
+          for (let i = 0; i < currentRound.length; i += 2) {
+            const m1 = currentRound[i];
+            const m2 = currentRound[i+1];
+            nextRound.push({
+              id: matchId++, t1: null, t2: null, round: roundNum, cat: m1.cat, gender: m1.gender,
+              prev1: m1.id, prev2: m2 ? m2.id : null,
+              label: 'Ganador anterior vs Ganador anterior',
+              courtId: null, courtName: null, time: null
+            });
+          }
+          allMatches = allMatches.concat(nextRound);
+          currentRound = nextRound;
+          roundNum++;
         }
+        knockoutMatches = knockoutMatches.concat(allMatches);
+        totalMatches += allMatches.length;
+        totalRounds = Math.max(totalRounds, roundNum - 1);
       });
-      allQ.forEach(q => {
-        if (!used.has(q.tid)) {
-          firstRound.push({ id: matchId++, t1: q.tid, t2: null, round: 1, cat: q.cat, gender: q.gender, label: q.zoneName + ' ' + q.pos + ' (bye)', bye: true, courtId: null, courtName: null, time: null });
-          used.add(q.tid);
-        }
-      });
-      let currentRound = firstRound;
-      let allMatches = [...firstRound];
-      let roundNum = 2;
-      while (currentRound.length > 1) {
-        const nextRound = [];
-        for (let i = 0; i < currentRound.length; i += 2) {
-          const m1 = currentRound[i];
-          const m2 = currentRound[i+1];
-          nextRound.push({
-            id: matchId++, t1: null, t2: null, round: roundNum, cat: m1.cat, gender: m1.gender,
-            prev1: m1.id, prev2: m2 ? m2.id : null,
-            label: 'Ganador #' + (allMatches.indexOf(m1)+1) + (m2 ? ' vs Ganador #' + (allMatches.indexOf(m2)+1) : ' (bye)'),
-            courtId: null, courtName: null, time: null
-          });
-        }
-        allMatches = allMatches.concat(nextRound);
-        currentRound = nextRound;
-        roundNum++;
-      }
-      knockoutMatches = allMatches;
+
       save();
       renderKnockout();
-      alert('Eliminatorias generadas: ' + knockoutMatches.length + ' partidos en ' + (roundNum-1) + ' rondas');
+      alert('Eliminatorias generadas: ' + totalMatches + ' partidos en ' + totalRounds + ' rondas (por categoría)');
     }
 
     function clearKnockout() {
@@ -1579,6 +1661,9 @@
     }
 
     function saveKnockoutResult(mid, field, val) {
+      const existing = knockoutResults[mid] && knockoutResults[mid][field];
+      const hasValue = (existing !== undefined && existing !== '' && existing !== null);
+      if (currentUserRole === 'guest' && hasValue) { alert('🚫 Solo el administrador puede modificar resultados ya cargados.'); return; }
       if (!knockoutResults[mid]) knockoutResults[mid] = {};
       knockoutResults[mid][field] = parseInt(val) || 0;
       save();
@@ -1590,12 +1675,14 @@
       resolveKnockoutTeams();
       const info = document.getElementById('knockout-info');
       const bracket = document.getElementById('knockout-bracket');
-      if (!knockoutMatches.length) {
+      const filterHtml = renderTournamentFilter('knockout-filter');
+      const filteredMatches = knockoutMatches.filter(m => matchesTournament(m));
+      if (!filteredMatches.length) {
         info.innerHTML = '';
-        bracket.innerHTML = '<div class="empty">Generá las eliminatorias primero</div>';
+        bracket.innerHTML = filterHtml + '<div class="empty">Generá las eliminatorias primero</div>';
         return;
       }
-      const maxRound = Math.max(...knockoutMatches.map(m => m.round));
+      const maxRound = Math.max(...filteredMatches.map(m => m.round));
       const roundNames = {};
       for (let r = 1; r <= maxRound; r++) {
         const remaining = maxRound - r;
@@ -1607,11 +1694,11 @@
         else roundNames[r] = 'Ronda ' + r;
       }
 
-      info.innerHTML = `<div class="alert alert-info">${knockoutMatches.length} partidos  ${maxRound} rondas</div>`;
+      info.innerHTML = `<div class="alert alert-info">${knockoutMatches.length} partidos • ${maxRound} rondas</div>`;
 
       // Detectar campeón y subcampeón (se renderiza al final del bracket)
       let championHtml = '';
-      const finalMatches = knockoutMatches.filter(m => m.round === maxRound);
+      const finalMatches = filteredMatches.filter(m => m.round === maxRound);
       if (finalMatches.length > 0) {
         const finalMatch = finalMatches[0];
         const r = knockoutResults[finalMatch.id];
@@ -1623,18 +1710,18 @@
             const loserName = loserId ? getTeamName(loserId) : '???';
             championHtml = `<div class="card" style="border-color:var(--warning);background:linear-gradient(135deg,var(--warning-light),var(--bg-card));margin-top:20px;">
               <div style="text-align:center;padding:20px;">
-                <div style="font-size:40px;margin-bottom:8px;"></div>
+                <div style="font-size:40px;margin-bottom:8px;">🏆</div>
                 <div style="font-size:24px;font-weight:900;color:var(--text);">Campeón</div>
                 <div style="font-size:20px;font-weight:800;color:var(--success);margin-top:6px;">${winnerName}</div>
-                <div style="font-size:16px;font-weight:700;color:var(--text-secondary);margin-top:12px;"> Subcampeón: ${loserName}</div>
+                <div style="font-size:16px;font-weight:700;color:var(--text-secondary);margin-top:12px;">🥈 Subcampeón: ${loserName}</div>
               </div>
             </div>`;
           }
         }
       }
       const rounds = {};
-      for (let r = 1; r <= maxRound; r++) rounds[r] = knockoutMatches.filter(m => m.round == r);
-      bracket.innerHTML = `<div class="bracket">${Object.keys(rounds).map(rn => {
+      for (let r = 1; r <= maxRound; r++) rounds[r] = filteredMatches.filter(m => m.round == r);
+      bracket.innerHTML = filterHtml + `<div class="bracket">${Object.keys(rounds).map(rn => {
         const rMatches = rounds[rn];
         return `<div class="bracket-col">
           <div style="text-align:center;font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:8px;">${roundNames[rn] || 'Ronda ' + rn}</div>
@@ -1698,18 +1785,18 @@
         if (!t.p1Paid) pending.push({ name: t.p1, team: t.name, cat: t.cat, gender: t.gender, playerNum: 1, teamId: t.id });
         if (!t.p2Paid) pending.push({ name: t.p2, team: t.name, cat: t.cat, gender: t.gender, playerNum: 2, teamId: t.id });
       });
-      if (!pending.length) { list.innerHTML = '<div class="empty"> ¡Todos los jugadores pagaron!</div>'; return; }
+      if (!pending.length) { list.innerHTML = '<div class="empty">🎉 ¡Todos los jugadores pagaron!</div>'; return; }
       list.innerHTML = pending.map(p => {
-        const genderBadge = p.gender === 'dam' ? '<span class="badge badge-dam"> Damas</span>' : '<span class="badge badge-cab"> Caballeros</span>';
+        const genderBadge = p.gender === 'dam' ? '<span class="badge badge-dam">👩 Damas</span>' : '<span class="badge badge-cab">👨 Caballeros</span>';
         return `<div class="team-row">
           <div class="team-info">
             <span class="team-name">${p.name}</span>
-            <span class="team-players">Pareja: ${p.team}  ${catFull(p.cat, p.gender)}</span>
+            <span class="team-players">Pareja: ${p.team} • ${catFull(p.cat, p.gender)}</span>
           </div>
           <div class="team-actions">
             <span class="badge badge-${p.cat}">${catLabels[p.cat]}</span>
             ${genderBadge}
-            <button class="btn btn-success btn-sm" onclick="togglePlayerPayment(${p.teamId},${p.playerNum});renderPending();" style="margin-top:4px;"> Pagó</button>
+            <button class="btn btn-success btn-sm" onclick="togglePlayerPayment(${p.teamId},${p.playerNum});renderPending();" style="margin-top:4px;">✅ Pagó</button>
           </div>
         </div>`;
       }).join('');
@@ -1725,18 +1812,18 @@
       if (!paid.length) { list.innerHTML = '<div class="empty">Nadie pagó todavía</div>'; return; }
       paid.sort((a, b) => (a.method || '').localeCompare(b.method || ''));
       list.innerHTML = paid.map(p => {
-        const methodLabel = p.method ? (paymentMethods[p.method] || p.method) : ' Sin método';
-        const genderBadge = p.gender === 'dam' ? '<span class="badge badge-dam"> Damas</span>' : '<span class="badge badge-cab"> Caballeros</span>';
+        const methodLabel = p.method ? (paymentMethods[p.method] || p.method) : '💵 Sin método';
+        const genderBadge = p.gender === 'dam' ? '<span class="badge badge-dam">👩 Damas</span>' : '<span class="badge badge-cab">👨 Caballeros</span>';
         return `<div class="team-row">
           <div class="team-info">
             <span class="team-name">${p.name}</span>
-            <span class="team-players">Pareja: ${p.team}  ${catFull(p.cat, p.gender)}</span>
-            <div class="player-line"><span class="badge badge-paid"> Pagó</span><span style="font-size:12px;color:var(--text-secondary);">${methodLabel}</span></div>
+            <span class="team-players">Pareja: ${p.team} • ${catFull(p.cat, p.gender)}</span>
+            <div class="player-line"><span class="badge badge-paid">✅ Pagó</span><span style="font-size:12px;color:var(--text-secondary);">${methodLabel}</span></div>
           </div>
           <div class="team-actions">
             <span class="badge badge-${p.cat}">${catLabels[p.cat]}</span>
             ${genderBadge}
-            <button class="btn btn-warning btn-sm" onclick="togglePlayerPayment(${p.teamId},${p.playerNum});renderPaid();" style="margin-top:4px;"> Pendiente</button>
+            <button class="btn btn-warning btn-sm" onclick="togglePlayerPayment(${p.teamId},${p.playerNum});renderPaid();" style="margin-top:4px;">❌ Pendiente</button>
           </div>
         </div>`;
       }).join('');
@@ -1788,9 +1875,9 @@
         console.log('RESPUESTA RAW:', text);
         let data;
         try { data = JSON.parse(text); } catch (parseErr) { data = { error: 'No es JSON: ' + text.substring(0, 200) }; }
-        if (data.success) { setSyncStatus('ok', ' Sincronizado con Google Drive'); }
-        else { setSyncStatus('error', ' Error del servidor: ' + (data.error || text.substring(0, 100))); }
-      } catch (e) { setSyncStatus('error', ' Error de conexión: ' + e.message); }
+        if (data.success) { setSyncStatus('ok', '✅ Sincronizado con Google Drive'); }
+        else { setSyncStatus('error', '❌ Error del servidor: ' + (data.error || text.substring(0, 100))); }
+      } catch (e) { setSyncStatus('error', '❌ Error de conexión: ' + e.message); }
     }
 
     async function loadFromDrive() {
@@ -1801,8 +1888,8 @@
       try {
         const res = await fetch(url + '?action=load');
         const data = await res.json();
-        setSyncStatus('ok', ' Conexión OK - Datos cargados desde Drive');
-      } catch (e) { setSyncStatus('error', ' Error al cargar: ' + e.message); }
+        setSyncStatus('ok', '✅ Conexión OK - Datos cargados desde Drive');
+      } catch (e) { setSyncStatus('error', '❌ Error al cargar: ' + e.message); }
     }
 
     async function testDriveConnection() {
@@ -1814,11 +1901,11 @@
         const res = await fetch(url + '?action=load');
         const data = await res.json();
         if (data.teams !== undefined) {
-          setSyncStatus('ok', ' Conexión exitosa con Google Drive');
+          setSyncStatus('ok', '✅ Conexión exitosa con Google Drive');
           document.getElementById('drive-status').innerHTML = '<div class="alert alert-success">Conexión establecida correctamente</div>';
-        } else { setSyncStatus('error', ' Respuesta inesperada del servidor'); }
+        } else { setSyncStatus('error', '❌ Respuesta inesperada del servidor'); }
       } catch (e) {
-        setSyncStatus('error', ' No se pudo conectar: ' + e.message);
+        setSyncStatus('error', '❌ No se pudo conectar: ' + e.message);
         document.getElementById('drive-status').innerHTML = '<div class="alert alert-warning">Verificá que la URL sea correcta y que el Web App esté publicado con acceso "Cualquiera"</div>';
       }
     }
@@ -1839,15 +1926,6 @@
     checkLogin();
     initFirebase();
     renderTeams(); renderZones(); renderGroups(); renderStandings(); renderKnockout(); renderCourts(); renderPending(); renderPaid(); renderConfig();
-
-    // Auto-login: entrar como admin y cargar datos de ejemplo
-    setTimeout(function() {
-      var ls = document.getElementById('login-screen');
-      if (ls && ls.style.display !== 'none') {
-        loadDemoData();
-        forceAdminLogin();
-      }
-    }, 1000);
 </script>
 </body>
 </html>
