@@ -309,6 +309,7 @@
       <button class="tab" onclick="showTab('paid')">✅ Pagaron</button>
       <button class="tab" onclick="showTab('room')">🏟️ Torneo</button>
       <button class="tab" onclick="showTab('admin')">⚙️ Admin</button>
+      <button class="tab" onclick="logout()" style="color:var(--danger);">🔒 Cerrar Sesión</button>
     </div>
 
     <!-- EQUIPOS -->
@@ -736,6 +737,8 @@
       document.querySelectorAll('.team-actions .btn-danger, .team-actions .btn-secondary').forEach(el => el.style.display = '');
       document.querySelectorAll('button[onclick^="togglePlayerPayment"]').forEach(el => el.style.display = '');
       document.querySelectorAll('.payment-method-select').forEach(el => el.style.display = '');
+      const roomTab2 = document.querySelector('button[onclick="showTab(\'room\')"]');
+      if (roomTab2) roomTab2.style.display = '';
       const banner = document.getElementById('guest-banner');
       if (banner) banner.style.display = 'none';
     }
@@ -753,32 +756,45 @@
     function doLogin() {
       const input = document.getElementById('login-password').value;
       const errorEl = document.getElementById('login-error');
-      if (!adminPassword && !guestPassword) {
-        if (input === '') {
+
+      // Si el usuario ingresó algo, intentar validar PRIMERO
+      if (input !== '') {
+        if (input === adminPassword && adminPassword !== '') {
           currentUserRole = 'admin';
           localStorage.setItem('fp_userRole', 'admin');
           document.getElementById('login-screen').style.display = 'none';
+          applyUserRole();
           return;
         }
-        errorEl.textContent = 'Primera vez: dejá el campo vacío para entrar como administrador.';
+        if (input === guestPassword && guestPassword !== '') {
+          currentUserRole = 'guest';
+          localStorage.setItem('fp_userRole', 'guest');
+          document.getElementById('login-screen').style.display = 'none';
+          applyUserRole();
+          return;
+        }
+        // Si llegó acá, la clave está mal (o no hay claves configuradas)
+        if (!adminPassword && !guestPassword) {
+          errorEl.textContent = '⚠️ Primera vez: no hay claves configuradas. Dejá el campo vacío para entrar como admin, o usá "Entrar como Admin (reset)".';
+        } else {
+          errorEl.textContent = '❌ Clave incorrecta. No tenés acceso.';
+        }
         errorEl.style.display = 'block';
         return;
       }
-      if (input === adminPassword) {
+
+      // Campo vacío
+      if (!adminPassword && !guestPassword) {
+        // Primera vez real
         currentUserRole = 'admin';
         localStorage.setItem('fp_userRole', 'admin');
         document.getElementById('login-screen').style.display = 'none';
         applyUserRole();
         return;
       }
-      if (input === guestPassword) {
-        currentUserRole = 'guest';
-        localStorage.setItem('fp_userRole', 'guest');
-        document.getElementById('login-screen').style.display = 'none';
-        applyUserRole();
-        return;
-      }
-      errorEl.textContent = '❌ Clave incorrecta. No tenés acceso.';
+
+      // Campo vacío pero hay claves configuradas
+      errorEl.textContent = '❌ Ingresá una clave para acceder.';
       errorEl.style.display = 'block';
     }
 
@@ -1911,16 +1927,33 @@
       localStorage.setItem('fp_driveUrl', driveUrl);
       setSyncStatus('syncing', 'Sincronizando con Google Drive...');
 
-      const allStandings = [];
+      // Agrupar datos por categoría + género
+      const byCategory = {};
       zones.forEach(z => {
+        const key = catFull(z.cat, z.gender);
+        if (!byCategory[key]) byCategory[key] = { cat: z.cat, gender: z.gender, standings: [], groupMatches: [], groupResults: {}, knockoutMatches: [], knockoutResults: {} };
         const st = calcZoneStandings(z.id);
         st.forEach((s, i) => {
           const t = teams.find(x => x.id == s.tid);
-          allStandings.push({ zoneName: z.name, pos: i + 1, teamName: t ? t.name : '???', pj: s.pj, pg: s.pg, pp: s.pp, sf: s.sf, sc: s.sc, gf: s.gf, gc: s.gc, dif: s.gf - s.gc, pts: s.pts });
+          byCategory[key].standings.push({ zoneName: z.name, pos: i + 1, teamName: t ? t.name : '???', pj: s.pj, pg: s.pg, pp: s.pp, sf: s.sf, sc: s.sc, gf: s.gf, gc: s.gc, dif: s.gf - s.gc, pts: s.pts });
         });
       });
+      groupMatches.forEach(m => {
+        const key = catFull(m.cat, m.gender);
+        if (byCategory[key]) {
+          byCategory[key].groupMatches.push(m);
+          if (groupResults[m.id]) byCategory[key].groupResults[m.id] = groupResults[m.id];
+        }
+      });
+      knockoutMatches.forEach(m => {
+        const key = catFull(m.cat, m.gender);
+        if (byCategory[key]) {
+          byCategory[key].knockoutMatches.push(m);
+          if (knockoutResults[m.id]) byCategory[key].knockoutResults[m.id] = knockoutResults[m.id];
+        }
+      });
 
-      const payload = { action: 'sync', teams: teams, groupMatches: groupMatches, groupResults: groupResults, knockoutMatches: knockoutMatches, knockoutResults: knockoutResults, standings: allStandings };
+      const payload = { action: 'sync', teams: teams, byCategory: byCategory };
 
       try {
         const res = await fetch(driveUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
