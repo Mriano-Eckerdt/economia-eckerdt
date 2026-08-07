@@ -259,7 +259,6 @@
   <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<base target="_blank">
 </head>
 <body>
   <div class="container">
@@ -580,7 +579,7 @@
         </div>
       </div>
 
-      id="drive-config-card">
+      <div class="card" id="drive-config-card">
         <div class="card-title">🔗 Sincronización con Google Drive</div>
         <p class="card-subtitle">Conectá la app con Google Sheets para que los jugadores vean resultados, canchas, horarios y sets en tiempo real.</p>
 
@@ -1034,14 +1033,21 @@
     }
 
     function renderAdminPanel() {
+      var adminContent = document.getElementById('admin-only-content');
+      var guestMsg = document.getElementById('guest-blocked-msg');
+      var driveCard = document.getElementById('drive-config-card');
+      var firebaseCard = document.getElementById('firebase-config-card');
+
       if (currentUserRole !== 'admin') {
-        document.getElementById('admin-only-content').style.display = 'none';
-        document.getElementById('guest-blocked-msg').style.display = 'block';
-        document.getElementById('drive-config-card').style.display = 'none';
+        if (adminContent) adminContent.style.display = 'none';
+        if (guestMsg) guestMsg.style.display = 'block';
+        if (driveCard) driveCard.style.display = 'none';
+        if (firebaseCard) firebaseCard.style.display = 'none';
       } else {
-        document.getElementById('admin-only-content').style.display = 'block';
-        document.getElementById('guest-blocked-msg').style.display = 'none';
-        document.getElementById('drive-config-card').style.display = 'block';
+        if (adminContent) adminContent.style.display = 'block';
+        if (guestMsg) guestMsg.style.display = 'none';
+        if (driveCard) driveCard.style.display = 'block';
+        if (firebaseCard) firebaseCard.style.display = 'block';
         document.getElementById('current-guest-pass').textContent = guestPassword ? '●●●●●●' : 'Sin configurar';
       }
     }
@@ -1488,7 +1494,7 @@
       const hasValue = (existing !== undefined && existing !== '' && existing !== null);
       if (currentUserRole === 'guest' && hasValue) { alert('🚫 Solo el administrador puede modificar resultados ya cargados.'); return; }
       if (!groupResults[mid]) groupResults[mid] = {};
-      groupResults[mid][field] = parseInt(val) || 0;
+      groupResults[mid][field] = val === '' ? '' : (parseInt(val) || 0);
       save();
       renderStandings();
     }
@@ -1551,8 +1557,7 @@
                   <span style="font-size:12px;font-weight:800;color:var(--text-secondary);width:28px;">3S</span>
                 </div>
               </div>
-              </div>
-            </div>`;
+              </div>`;
           }).join('')}
         </div>`;
       }).join('');
@@ -1761,10 +1766,11 @@
     }
 
     function getKnockoutWinner(matchId) {
-      const r = knockoutResults[matchId];
-      if (!r) return null;
       const m = knockoutMatches.find(x => x.id == matchId);
       if (!m) return null;
+      if (m.bye && m.t1) return m.t1;
+      const r = knockoutResults[matchId];
+      if (!r) return null;
       const s1t1 = parseInt(r.s1t1)||0, s1t2 = parseInt(r.s1t2)||0;
       const s2t1 = parseInt(r.s2t1)||0, s2t2 = parseInt(r.s2t2)||0;
       const s3t1 = parseInt(r.s3t1)||0, s3t2 = parseInt(r.s3t2)||0;
@@ -1791,7 +1797,7 @@
       const hasValue = (existing !== undefined && existing !== '' && existing !== null);
       if (currentUserRole === 'guest' && hasValue) { alert('🚫 Solo el administrador puede modificar resultados ya cargados.'); return; }
       if (!knockoutResults[mid]) knockoutResults[mid] = {};
-      knockoutResults[mid][field] = parseInt(val) || 0;
+      knockoutResults[mid][field] = val === '' ? '' : (parseInt(val) || 0);
       save();
       resolveKnockoutTeams();
       renderKnockout();
@@ -1840,14 +1846,13 @@
                 <div style="font-size:24px;font-weight:900;color:var(--text);">Campeón</div>
                 <div style="font-size:20px;font-weight:800;color:var(--success);margin-top:6px;">${winnerName}</div>
                 <div style="font-size:16px;font-weight:700;color:var(--text-secondary);margin-top:12px;">🥈 Subcampeón: ${loserName}</div>
-              </div>
-            </div>`;
+              </div>`;
           }
         }
       }
       const rounds = {};
       for (let r = 1; r <= maxRound; r++) rounds[r] = filteredMatches.filter(m => m.round == r);
-      bracket.innerHTML = filterHtml + `<div class="bracket">${Object.keys(rounds).map(rn => {
+      bracket.innerHTML = filterHtml + `<div class="bracket">${Object.keys(rounds).sort((a,b)=>parseInt(a)-parseInt(b)).map(rn => {
         const rMatches = rounds[rn];
         return `<div class="bracket-col">
           <div style="text-align:center;font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:8px;">${roundNames[rn] || 'Ronda ' + rn}</div>
@@ -1856,8 +1861,8 @@
             const t1Name = m.t1 ? getTeamName(m.t1) : (m.prev1 ? 'Ganador anterior' : '???');
             const t2Name = m.t2 ? getTeamName(m.t2) : (m.prev2 ? 'Ganador anterior' : '???');
             const winner = getKnockoutWinner(m.id);
-            const t1Class = winner === m.t1 ? 'bracket-winner' : winner === m.t2 ? 'bracket-loser' : '';
-            const t2Class = winner === m.t2 ? 'bracket-winner' : winner === m.t1 ? 'bracket-loser' : '';
+            const t1Class = (winner && winner === m.t1) ? 'bracket-winner' : (winner && winner === m.t2) ? 'bracket-loser' : '';
+            const t2Class = (winner && winner === m.t2) ? 'bracket-winner' : (winner && winner === m.t1) ? 'bracket-loser' : '';
             const editable = m.t1 && m.t2;
             return `<div class="bracket-match">
               <div class="bracket-label">${m.label || ''}</div>
