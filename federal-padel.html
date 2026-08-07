@@ -259,6 +259,7 @@
   <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<base target="_blank">
 </head>
 <body>
   <div class="container">
@@ -550,7 +551,36 @@
         </div>
       </div>
 
-      <div class="card" id="drive-config-card">
+      <div class="card" id="firebase-config-card">
+        <div class="card-title">🔥 Configuración de Firebase (Multi-Dispositivo)</div>
+        <p class="card-subtitle">Conectá la app con Firebase Realtime Database para sincronizar en tiempo real entre varios teléfonos.</p>
+
+        <div class="alert alert-warning" style="margin-bottom:14px;">
+          <strong>⚠️ Importante:</strong> Para usar esto necesitás crear un proyecto en <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a> y activar <strong>Realtime Database</strong>.
+        </div>
+
+        <label class="small" style="font-weight:700;margin-bottom:6px;display:block;">Configuración de Firebase (JSON)</label>
+        <textarea class="input" id="firebase-config-input" placeholder='{"apiKey":"...","authDomain":"...","databaseURL":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}' style="min-height:120px;font-family:monospace;font-size:12px;"></textarea>
+        <div class="actions">
+          <button class="btn btn-primary" onclick="saveFirebaseConfig()">💾 Guardar Configuración</button>
+          <button class="btn btn-secondary btn-sm" onclick="testFirebaseConnection()">🔗 Probar Conexión</button>
+        </div>
+        <div id="firebase-status" style="margin-top:12px;"></div>
+
+        <div style="margin-top:16px;padding:14px;background:var(--bg-dark);border-radius:var(--radius-sm);font-size:12px;color:var(--text-secondary);line-height:1.8;">
+          <strong style="color:var(--text);">📖 Cómo obtener la configuración:</strong><br>
+          1. Andá a <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a><br>
+          2. Creá un proyecto nuevo (o usá uno existente)<br>
+          3. Andá a <strong>Build → Realtime Database</strong> y creá la base<br>
+          4. Andá a ⚙️ <strong>Configuración del proyecto → General</strong><br>
+          5. En <strong>Tus apps</strong>, clic en el icono de ⚙️ <strong>Web</strong><br>
+          6. Copiá el objeto <code>firebaseConfig</code> y pegalo arriba<br>
+          7. <strong>Reglas de seguridad:</strong> andá a Realtime Database → Reglas y poné:<br>
+          <code style="background:var(--bg);padding:4px;border-radius:4px;">{"rules":{".read":true,".write":true}}</code>
+        </div>
+      </div>
+
+      id="drive-config-card">
         <div class="card-title">🔗 Sincronización con Google Drive</div>
         <p class="card-subtitle">Conectá la app con Google Sheets para que los jugadores vean resultados, canchas, horarios y sets en tiempo real.</p>
 
@@ -814,16 +844,32 @@
       localStorage.setItem('fp_guestPass', newPass);
     }
 
+    function setFirebaseConfig(configStr) {
+      try {
+        var cfg = JSON.parse(configStr);
+        if (!cfg.apiKey || !cfg.databaseURL) { alert('Configuración inválida. Faltan apiKey o databaseURL.'); return false; }
+        localStorage.setItem('fp_firebaseConfig', JSON.stringify(cfg));
+        firebaseConfig = cfg;
+        alert('✅ Configuración de Firebase guardada. Recargá la página para conectar.');
+        return true;
+      } catch(e) { alert('❌ Error: el JSON no es válido. ' + e.message); return false; }
+    }
+
     // ===== FIREBASE MULTI-DISPOSITIVO =====
-    const firebaseConfig = {
-      apiKey: "AIzaSyDummyKeyForFederalPadel",
-      authDomain: "federal-padel.firebaseapp.com",
-      databaseURL: "https://federal-padel-default-rtdb.firebaseio.com",
-      projectId: "federal-padel",
-      storageBucket: "federal-padel.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "1:123456789:web:abcdef123456"
-    };
+    // Config de Firebase: se puede setear desde Admin o usar la default
+    let firebaseConfig = JSON.parse(localStorage.getItem('fp_firebaseConfig') || '{}');
+    // Fallback a config dummy si no hay nada guardado
+    if (!firebaseConfig.apiKey) {
+      firebaseConfig = {
+        apiKey: "AIzaSyDummyKeyForFederalPadel",
+        authDomain: "federal-padel.firebaseapp.com",
+        databaseURL: "https://federal-padel-default-rtdb.firebaseio.com",
+        projectId: "federal-padel",
+        storageBucket: "federal-padel.appspot.com",
+        messagingSenderId: "123456789",
+        appId: "1:123456789:web:abcdef123456"
+      };
+    }
 
     let firebaseApp = null;
     let firebaseDb = null;
@@ -1997,6 +2043,51 @@
     }
 
     
+
+    function saveFirebaseConfig() {
+      var val = document.getElementById('firebase-config-input').value.trim();
+      if (!val) { alert('Pegá la configuración de Firebase primero.'); return; }
+      if (setFirebaseConfig(val)) {
+        document.getElementById('firebase-status').innerHTML = '<div class="alert alert-success">✅ Configuración guardada. Recargá la página para conectar.</div>';
+      }
+    }
+
+    function testFirebaseConnection() {
+      var val = document.getElementById('firebase-config-input').value.trim();
+      if (val) {
+        try {
+          var cfg = JSON.parse(val);
+          if (!cfg.apiKey || !cfg.databaseURL) {
+            document.getElementById('firebase-status').innerHTML = '<div class="alert alert-warning">⚠️ Faltan apiKey o databaseURL</div>';
+            return;
+          }
+          document.getElementById('firebase-status').innerHTML = '<div class="alert alert-success">✅ JSON válido. Guardá y recargá la página para probar la conexión real.</div>';
+        } catch(e) {
+          document.getElementById('firebase-status').innerHTML = '<div class="alert alert-danger">❌ JSON inválido: ' + e.message + '</div>';
+        }
+      } else {
+        // Probar con la config actual
+        if (!firebaseConfig.apiKey || firebaseConfig.apiKey.indexOf('Dummy') > -1) {
+          document.getElementById('firebase-status').innerHTML = '<div class="alert alert-warning">⚠️ No hay configuración de Firebase real. Pegá tu configuración arriba.</div>';
+          return;
+        }
+        try {
+          if (firebaseDb) {
+            firebaseDb.ref('.info/connected').on('value', function(snap) {
+              if (snap.val() === true) {
+                document.getElementById('firebase-status').innerHTML = '<div class="alert alert-success">✅ Conectado a Firebase correctamente.</div>';
+              } else {
+                document.getElementById('firebase-status').innerHTML = '<div class="alert alert-warning">⚠️ Firebase inicializado pero sin conexión de red.</div>';
+              }
+            });
+          } else {
+            document.getElementById('firebase-status').innerHTML = '<div class="alert alert-warning">⚠️ Firebase no se pudo inicializar. Revisá la consola (F12) para errores.</div>';
+          }
+        } catch(e) {
+          document.getElementById('firebase-status').innerHTML = '<div class="alert alert-danger">❌ Error: ' + e.message + '</div>';
+        }
+      }
+    }
 
     function renderConfig() {
       document.getElementById('drive-url').value = driveUrl;
