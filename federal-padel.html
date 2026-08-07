@@ -846,13 +846,24 @@
 
     function setFirebaseConfig(configStr) {
       try {
-        var cfg = JSON.parse(configStr);
+        var cfg;
+        // Intentar JSON.parse primero
+        try {
+          cfg = JSON.parse(configStr);
+        } catch(jsonErr) {
+          // Si falla, puede ser formato JS de Firebase (sin comillas en claves)
+          // Convertir a JSON válido: agregar comillas a las claves
+          var fixed = configStr
+            .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
+            .replace(/'/g, '"');
+          cfg = JSON.parse(fixed);
+        }
         if (!cfg.apiKey || !cfg.databaseURL) { alert('Configuración inválida. Faltan apiKey o databaseURL.'); return false; }
         localStorage.setItem('fp_firebaseConfig', JSON.stringify(cfg));
         firebaseConfig = cfg;
         alert('✅ Configuración de Firebase guardada. Recargá la página para conectar.');
         return true;
-      } catch(e) { alert('❌ Error: el JSON no es válido. ' + e.message); return false; }
+      } catch(e) { alert('❌ Error: no se pudo parsear la configuración. Asegurate de pegar el bloque firebaseConfig completo desde Firebase Console. ' + e.message); return false; }
     }
 
     // ===== FIREBASE MULTI-DISPOSITIVO =====
