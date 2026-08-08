@@ -986,9 +986,10 @@
             knockoutResults = { ...knockoutResults, ...data.knockoutResults };
           }
           // Sincronizar activeTournament
-          if (data.activeTournament !== undefined) {
+          if (data.activeTournament !== undefined && data.activeTournament !== activeTournament) {
             activeTournament = data.activeTournament;
             localStorage.setItem('fp_activeTournament', activeTournament);
+            console.log('Firebase: activeTournament actualizado a', activeTournament);
           }
           // Sincronizar claves entre dispositivos
           if (data.adminPassword !== undefined) {
@@ -1020,6 +1021,7 @@
       localStorage.setItem('fp_groupResults', JSON.stringify(groupResults));
       localStorage.setItem('fp_knockoutMatches', JSON.stringify(knockoutMatches));
       localStorage.setItem('fp_knockoutResults', JSON.stringify(knockoutResults));
+      localStorage.setItem('fp_activeTournament', activeTournament);
     }
 
     function renderRoomStatus() {
@@ -1497,15 +1499,43 @@
     function generateGroupFixture() {
       const invalid = zones.find(z => { const n = (z.teamIds || []).length; return n < 3 || n > 4; });
       if (invalid) { alert('Todas las zonas deben tener 3 o 4 equipos. Revisá "' + invalid.name + '"'); return; }
+
+      // Preservar resultados existentes mapeando por zona+equipos
+      const oldResults = { ...groupResults };
+      const oldMatches = [...groupMatches];
+
       groupMatches = [];
       zones.forEach(z => {
         const tids = z.teamIds || [];
         for (let i = 0; i < tids.length; i++) {
           for (let j = i + 1; j < tids.length; j++) {
-            groupMatches.push({ id: Date.now() + Math.random(), t1: tids[i], t2: tids[j], zoneId: z.id, cat: z.cat, gender: z.gender, courtId: null, courtName: null, time: null });
+            // Buscar si ya existía un partido igual para preservar ID y resultados
+            const existing = oldMatches.find(m => m.zoneId == z.id && m.t1 == tids[i] && m.t2 == tids[j]);
+            const newId = existing ? existing.id : (Date.now() + Math.random());
+            groupMatches.push({ 
+              id: newId, 
+              t1: tids[i], 
+              t2: tids[j], 
+              zoneId: z.id, 
+              cat: z.cat, 
+              gender: z.gender, 
+              courtId: existing ? existing.courtId : null, 
+              courtName: existing ? existing.courtName : null, 
+              time: existing ? existing.time : null 
+            });
           }
         }
       });
+
+      // Limpiar resultados huérfanos (de partidos que ya no existen)
+      const validMatchIds = new Set(groupMatches.map(m => m.id));
+      groupResults = {};
+      for (const [mid, result] of Object.entries(oldResults)) {
+        if (validMatchIds.has(parseFloat(mid))) {
+          groupResults[mid] = result;
+        }
+      }
+
       save();
       renderGroups();
       alert('Fixture de grupos generado: ' + groupMatches.length + ' partidos');
@@ -1534,7 +1564,7 @@
       const filterHtml = renderTournamentFilter('groups-filter');
       if (!groupMatches.length) { cont.innerHTML = filterHtml + '<div class="empty">Generá el fixture de grupos primero</div>'; return; }
       const filteredZones = zones.filter(z => matchesTournament(z));
-      if (!filteredZones.length) { cont.innerHTML = filterHtml + '<div class="empty">No hay zonas en esta categoría</div>'; return; }
+      if (!filteredZones.length) { cont.innerHTML = filterHtml + '<div class="empty">No hay zonas en esta categoría. Filtro activo: ' + (activeTournament === 'all' ? 'Todos' : activeTournament) + '</div>'; return; }
       cont.innerHTML = filterHtml + filteredZones.map(z => {
         const zMatches = groupMatches.filter(m => m.zoneId == z.id);
         if (!zMatches.length) return '';
@@ -1627,7 +1657,7 @@
       const cont = document.getElementById('standings-content');
       const filterHtml = renderTournamentFilter('standings-filter');
       const filteredZones = zones.filter(z => matchesTournament(z));
-      if (!filteredZones.length) { cont.innerHTML = filterHtml + '<div class="empty">No hay zonas en esta categoría</div>'; return; }
+      if (!filteredZones.length) { cont.innerHTML = filterHtml + '<div class="empty">No hay zonas en esta categoría. Filtro activo: ' + (activeTournament === 'all' ? 'Todos' : activeTournament) + '</div>'; return; }
       const legend = `<div style="margin-bottom:14px;padding:14px 18px;border:2px solid var(--border);border-radius:var(--radius);background:var(--bg-card);font-size:13px;color:var(--text-secondary);font-weight:600;line-height:2;box-shadow:var(--shadow);">
         <strong style="color:var(--text);">📖 Leyenda de la tabla:</strong>
         <span style="margin-left:8px;"><strong style="color:var(--accent);">PJ</strong> = Partidos Jugados</span> •
