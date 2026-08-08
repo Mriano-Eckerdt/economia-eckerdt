@@ -846,40 +846,35 @@
     function setFirebaseConfig(configStr) {
       try {
         var cfg;
-        // Intentar JSON.parse primero
-        try {
-          cfg = JSON.parse(configStr);
-        } catch(jsonErr) {
-          // Si falla, puede ser formato JS de Firebase (sin comillas en claves)
-          // Convertir a JSON válido: agregar comillas a las claves
-          var fixed = configStr
-            .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
-            .replace(/'/g, '"');
+        try { cfg = JSON.parse(configStr); } catch(jsonErr) {
+          var fixed = configStr.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":').replace(/'/g, '"');
           cfg = JSON.parse(fixed);
         }
         if (!cfg.apiKey || !cfg.databaseURL) { alert('Configuración inválida. Faltan apiKey o databaseURL.'); return false; }
-        localStorage.setItem('fp_firebaseConfig', JSON.stringify(cfg));
-        firebaseConfig = cfg;
-        alert('✅ Configuración de Firebase guardada. Recargá la página para conectar.');
+        alert('✅ Configuración válida. Para cambiarla, editá el código fuente y subilo de nuevo a GitHub.');
         return true;
-      } catch(e) { alert('❌ Error: no se pudo parsear la configuración. Asegurate de pegar el bloque firebaseConfig completo desde Firebase Console. ' + e.message); return false; }
+      } catch(e) { alert('❌ Error: no se pudo parsear la configuración. ' + e.message); return false; }
     }
 
     // ===== FIREBASE MULTI-DISPOSITIVO =====
     // Config de Firebase: se puede setear desde Admin o usar la default
-    let firebaseConfig = JSON.parse(localStorage.getItem('fp_firebaseConfig') || '{}');
-    // Fallback a config dummy si no hay nada guardado
-    if (!firebaseConfig.apiKey) {
-      firebaseConfig = {
-        apiKey: "AIzaSyDummyKeyForFederalPadel",
-        authDomain: "federal-padel.firebaseapp.com",
-        databaseURL: "https://federal-padel-default-rtdb.firebaseio.com",
-        projectId: "federal-padel",
-        storageBucket: "federal-padel.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abcdef123456"
-      };
-    }
+    // ============================================
+    // CONFIGURACIÓN DE FIREBASE — HARDOCODEADA
+    // Reemplazá estos valores con los de tu proyecto Firebase
+    // ============================================
+    const firebaseConfig = {
+  apiKey: "AIzaSyAnFnYL4FmwhvtlR8VX9Z0KLKYjeQVaWw4",
+  authDomain: "federal-padel.firebaseapp.com",
+  databaseURL: "https://federal-padel-default-rtdb.firebaseio.com",
+  projectId: "federal-padel",
+  storageBucket: "federal-padel.firebasestorage.app",
+  messagingSenderId: "966866202897",
+  appId: "1:966866202897:web:cf0b572d312d0ff05a5cb0"
+}
+    };
+    // ============================================
+    // FIN CONFIGURACIÓN FIREBASE
+    // ============================================
 
     let firebaseApp = null;
     let firebaseDb = null;
