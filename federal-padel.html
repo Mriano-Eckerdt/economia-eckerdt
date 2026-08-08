@@ -946,6 +946,8 @@
       const data = {
         teams, zones, courts, groupMatches, groupResults,
         knockoutMatches, knockoutResults,
+        adminPassword: adminPassword,
+        guestPassword: guestPassword,
         updatedAt: Date.now(),
         updatedBy: 'organizer'
       };
@@ -979,6 +981,15 @@
           if (data.groupResults) groupResults = data.groupResults;
           if (data.knockoutMatches) knockoutMatches = data.knockoutMatches;
           if (data.knockoutResults) knockoutResults = data.knockoutResults;
+          // Sincronizar claves entre dispositivos
+          if (data.adminPassword !== undefined) {
+            adminPassword = data.adminPassword;
+            localStorage.setItem('fp_adminPass', adminPassword);
+          }
+          if (data.guestPassword !== undefined) {
+            guestPassword = data.guestPassword;
+            localStorage.setItem('fp_guestPass', guestPassword);
+          }
           saveLocal();
           renderAll();
         });
