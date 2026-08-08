@@ -941,9 +941,11 @@
 
     function saveToFirebase() {
       if (!firebaseDb || !currentRoom) return;
+      console.log('Firebase: enviando datos...', { teams: teams.length, zones: zones.length, groupMatches: groupMatches.length });
       const data = {
         teams, zones, courts, groupMatches, groupResults,
         knockoutMatches, knockoutResults,
+        activeTournament: activeTournament,
         adminPassword: adminPassword,
         guestPassword: guestPassword,
         updatedAt: Date.now(),
@@ -964,6 +966,7 @@
         firebaseDb.ref('tournaments/' + currentRoom).on('value', snapshot => {
           const data = snapshot.val();
           if (!data) return;
+          console.log('Firebase: datos recibidos', { from: data.updatedBy, teams: data.teams ? data.teams.length : 0, zones: data.zones ? data.zones.length : 0, groupMatches: data.groupMatches ? data.groupMatches.length : 0 });
           // Ignorar datos propios (eco) - solo aceptar de otros dispositivos
           if (data.updatedBy === deviceId) {
             console.log('Firebase: ignorando eco propio');
@@ -974,9 +977,19 @@
           if (data.zones) zones = data.zones;
           if (data.courts) courts = data.courts;
           if (data.groupMatches) groupMatches = data.groupMatches;
-          if (data.groupResults) groupResults = data.groupResults;
           if (data.knockoutMatches) knockoutMatches = data.knockoutMatches;
-          if (data.knockoutResults) knockoutResults = data.knockoutResults;
+          // Mergear resultados en vez de reemplazar (evita que se borren entre dispositivos)
+          if (data.groupResults) {
+            groupResults = { ...groupResults, ...data.groupResults };
+          }
+          if (data.knockoutResults) {
+            knockoutResults = { ...knockoutResults, ...data.knockoutResults };
+          }
+          // Sincronizar activeTournament
+          if (data.activeTournament !== undefined) {
+            activeTournament = data.activeTournament;
+            localStorage.setItem('fp_activeTournament', activeTournament);
+          }
           // Sincronizar claves entre dispositivos
           if (data.adminPassword !== undefined) {
             adminPassword = data.adminPassword;
