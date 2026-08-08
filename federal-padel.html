@@ -876,6 +876,9 @@
     let firebaseDb = null;
     let currentRoom = localStorage.getItem('fp_room') || '';
     let lastFirebaseUpdate = 0;
+    // ID único por dispositivo para evitar ecos en Firebase
+    let deviceId = localStorage.getItem('fp_deviceId') || 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('fp_deviceId', deviceId);
 
     function initFirebase() {
       try {
@@ -938,15 +941,13 @@
 
     function saveToFirebase() {
       if (!firebaseDb || !currentRoom) return;
-      // No mandar si acabamos de recibir datos hace menos de 1 segundo (evita eco)
-      if (Date.now() - lastFirebaseUpdate < 1000) return;
       const data = {
         teams, zones, courts, groupMatches, groupResults,
         knockoutMatches, knockoutResults,
         adminPassword: adminPassword,
         guestPassword: guestPassword,
         updatedAt: Date.now(),
-        updatedBy: 'organizer'
+        updatedBy: deviceId
       };
       try {
         firebaseDb.ref('tournaments/' + currentRoom).set(data)
@@ -963,14 +964,12 @@
         firebaseDb.ref('tournaments/' + currentRoom).on('value', snapshot => {
           const data = snapshot.val();
           if (!data) return;
-          // Solo actualizar si los datos de Firebase son más nuevos que los locales
-          const localUpdated = parseInt(localStorage.getItem('fp_updatedAt') || '0');
-          if (data.updatedAt && data.updatedAt <= localUpdated) {
-            console.log('Firebase: datos locales son más nuevos, ignorando');
+          // Ignorar datos propios (eco) - solo aceptar de otros dispositivos
+          if (data.updatedBy === deviceId) {
+            console.log('Firebase: ignorando eco propio');
             return;
           }
           lastFirebaseUpdate = Date.now();
-          localStorage.setItem('fp_updatedAt', data.updatedAt);
           if (data.teams) teams = data.teams;
           if (data.zones) zones = data.zones;
           if (data.courts) courts = data.courts;
@@ -1085,7 +1084,6 @@
     }
 
     function save() {
-      const now = Date.now();
       localStorage.setItem('fp_teams', JSON.stringify(teams));
       localStorage.setItem('fp_zones', JSON.stringify(zones));
       localStorage.setItem('fp_courts', JSON.stringify(courts));
@@ -1094,7 +1092,6 @@
       localStorage.setItem('fp_knockoutMatches', JSON.stringify(knockoutMatches));
       localStorage.setItem('fp_knockoutResults', JSON.stringify(knockoutResults));
       localStorage.setItem('fp_activeTournament', activeTournament);
-      localStorage.setItem('fp_updatedAt', now);
       saveToFirebase();
       if (autoSync && driveUrl) debouncedSync();
     }
