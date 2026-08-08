@@ -275,8 +275,6 @@
           <label class="small" style="font-weight:700;margin-bottom:8px;display:block;">Clave de acceso</label>
           <input type="password" class="input" id="login-password" placeholder="Ingresá la clave" style="margin-bottom:16px;" onkeydown="if(event.key==='Enter')doLogin()" />
           <button class="btn btn-primary" style="width:100%;padding:14px;font-size:16px;" onclick="doLogin()">🔓 Ingresar</button>
-          <button class="btn btn-success" style="width:100%;padding:14px;font-size:16px;margin-top:10px;" onclick="forceAdminLogin()">🔑 Entrar como Admin (reset)</button>
-          <button class="btn btn-secondary" style="width:100%;padding:14px;font-size:16px;margin-top:10px;" onclick="loadDemoData(); forceAdminLogin();">🎲 Cargar Ejemplo y Entrar</button>
           <div id="first-time-msg" style="display:none;margin-top:16px;padding:12px;background:var(--success-light);color:var(--success);border-radius:var(--radius-sm);font-size:13px;text-align:center;">
             <strong>¡Primera vez!</strong><br>
             No hay clave configurada. Dejá el campo vacío y apretá Ingresar para entrar como administrador.
@@ -680,6 +678,11 @@
     let currentUserRole = localStorage.getItem('fp_userRole') || '';
 
     function checkLogin() {
+      // Actualizar claves desde localStorage por si llegaron de otro dispositivo
+      adminPassword = localStorage.getItem('fp_adminPass') || '';
+      guestPassword = localStorage.getItem('fp_guestPass') || '';
+      currentUserRole = localStorage.getItem('fp_userRole') || '';
+
       // Si ya hay sesión activa, entrar directo
       if (currentUserRole) {
         document.getElementById('login-screen').style.display = 'none';
@@ -773,10 +776,13 @@
     }
 
     function forceAdminLogin() {
-      localStorage.removeItem('fp_adminPass');
-      localStorage.removeItem('fp_guestPass');
+      // Solo funciona si no hay clave de admin configurada (primera vez o reset)
+      if (adminPassword || guestPassword) {
+        alert('❌ No se puede resetear: ya hay claves configuradas. Usá la clave de admin para entrar.');
+        return;
+      }
       localStorage.removeItem('fp_userRole');
-      adminPassword = ''; guestPassword = ''; currentUserRole = 'admin';
+      currentUserRole = 'admin';
       localStorage.setItem('fp_userRole', 'admin');
       document.getElementById('login-screen').style.display = 'none';
       applyUserRole(); renderAll();
@@ -786,35 +792,8 @@
       const input = document.getElementById('login-password').value;
       const errorEl = document.getElementById('login-error');
 
-      // Si el usuario ingresó algo, intentar validar PRIMERO
-      if (input !== '') {
-        if (input === adminPassword && adminPassword !== '') {
-          currentUserRole = 'admin';
-          localStorage.setItem('fp_userRole', 'admin');
-          document.getElementById('login-screen').style.display = 'none';
-          applyUserRole();
-          return;
-        }
-        if (input === guestPassword && guestPassword !== '') {
-          currentUserRole = 'guest';
-          localStorage.setItem('fp_userRole', 'guest');
-          document.getElementById('login-screen').style.display = 'none';
-          applyUserRole();
-          return;
-        }
-        // Si llegó acá, la clave está mal (o no hay claves configuradas)
-        if (!adminPassword && !guestPassword) {
-          errorEl.textContent = '⚠️ Primera vez: no hay claves configuradas. Dejá el campo vacío para entrar como admin, o usá "Entrar como Admin (reset)".';
-        } else {
-          errorEl.textContent = '❌ Clave incorrecta. No tenés acceso.';
-        }
-        errorEl.style.display = 'block';
-        return;
-      }
-
-      // Campo vacío
+      // Primera vez: no hay claves configuradas
       if (!adminPassword && !guestPassword) {
-        // Primera vez real
         currentUserRole = 'admin';
         localStorage.setItem('fp_userRole', 'admin');
         document.getElementById('login-screen').style.display = 'none';
@@ -822,8 +801,26 @@
         return;
       }
 
-      // Campo vacío pero hay claves configuradas
-      errorEl.textContent = '❌ Ingresá una clave para acceder.';
+      // Validar clave de admin
+      if (input === adminPassword && adminPassword !== '') {
+        currentUserRole = 'admin';
+        localStorage.setItem('fp_userRole', 'admin');
+        document.getElementById('login-screen').style.display = 'none';
+        applyUserRole();
+        return;
+      }
+
+      // Validar clave de invitado
+      if (input === guestPassword && guestPassword !== '') {
+        currentUserRole = 'guest';
+        localStorage.setItem('fp_userRole', 'guest');
+        document.getElementById('login-screen').style.display = 'none';
+        applyUserRole();
+        return;
+      }
+
+      // Si llegó acá, la clave está mal
+      errorEl.textContent = '❌ Clave incorrecta. No tenés acceso.';
       errorEl.style.display = 'block';
     }
 
@@ -989,6 +986,11 @@
           if (data.guestPassword !== undefined) {
             guestPassword = data.guestPassword;
             localStorage.setItem('fp_guestPass', guestPassword);
+          }
+          // Actualizar UI de admin si está en esa pestaña
+          const currentGuestPassEl = document.getElementById('current-guest-pass');
+          if (currentGuestPassEl) {
+            currentGuestPassEl.textContent = guestPassword ? '●●●●●●' : 'Sin configurar';
           }
           saveLocal();
           renderAll();
